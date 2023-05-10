@@ -40,7 +40,7 @@ impl Repo {
                 if manifest.path == *dir_path || manifest.other_paths.contains(dir_path) {
                     return Ok(Some(Metadata {
                         data_dir,
-                        manifest_path: manifest_path,
+                        manifest_path,
                         manifest,
                     }));
                 }
@@ -58,6 +58,15 @@ impl Repo {
             other_paths: dir.other_paths.clone(),
         };
         safe_write_file(manifest_path, serde_yaml::to_string(&manifest)?, false)?;
+        Ok(())
+    }
+
+    pub fn write_metadata(&self, metadata: &Metadata, overwrite: bool) -> Result<()> {
+        safe_write_file(
+            &metadata.manifest_path,
+            serde_yaml::to_string(&metadata.manifest)?,
+            overwrite,
+        )?;
         Ok(())
     }
 }

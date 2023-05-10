@@ -27,6 +27,18 @@ pub enum Subcommand {
     #[command(name = "rm", about = "Remove metadata for directory")]
     Remove,
 
+    #[command(
+        name = "reg",
+        about = "Register directory with existing metadata directory"
+    )]
+    Register {
+        #[arg(name = "hash")]
+        hash: String,
+
+        #[arg(name = "dir")]
+        dir: PathBuf,
+    },
+
     #[command(name = "show", about = "Show metadata for directory")]
     Show,
 }
