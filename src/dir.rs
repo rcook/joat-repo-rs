@@ -15,7 +15,10 @@ impl Dir {
         let path = current_dir()?;
         let mut other_paths = HashSet::new();
         if let Some(pwd) = Self::var_opt("PWD")? {
-            _ = other_paths.insert(PathBuf::from(pwd))
+            let pwd_path = PathBuf::from(pwd);
+            if pwd_path != path {
+                _ = other_paths.insert(pwd_path)
+            }
         }
         Ok(Self { path, other_paths })
     }

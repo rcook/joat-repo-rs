@@ -20,6 +20,16 @@ impl Repo {
         }
     }
 
+    pub fn get_metadata_from_data_dir(&self, data_dir: &Path) -> Result<Metadata> {
+        let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
+        let manifest = read_yaml_file(&manifest_path)?;
+        Ok(Metadata {
+            data_dir: data_dir.to_path_buf(),
+            manifest_path,
+            manifest,
+        })
+    }
+
     pub fn get_metadata(&self, dir: &Dir) -> Result<Option<Metadata>> {
         for dir_path in once(&dir.path).chain(&dir.other_paths) {
             let digest = HexDigest::from_path(dir_path)?;

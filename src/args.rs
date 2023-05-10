@@ -21,6 +21,9 @@ pub enum Subcommand {
     #[command(name = "init", about = "Initialize metadata for directory")]
     Init,
 
+    #[command(name = "ls", about = "Show metadata for all directories")]
+    List,
+
     #[command(name = "rm", about = "Remove metadata for directory")]
     Remove,
 

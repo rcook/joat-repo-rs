@@ -2,6 +2,7 @@ mod args;
 mod dir;
 mod hash;
 mod init_command;
+mod list_command;
 mod manifest;
 mod metadata;
 mod remove_command;
@@ -11,6 +12,7 @@ mod show_command;
 use crate::args::{Args, Subcommand};
 use crate::dir::Dir;
 use crate::init_command::do_init;
+use crate::list_command::do_list;
 use crate::remove_command::do_remove;
 use crate::repo::Repo;
 use crate::show_command::do_show;
@@ -37,6 +39,7 @@ fn main() -> Result<()> {
     let current_dir = Dir::from_cwd()?;
     match args.subcommand {
         Some(Subcommand::Init) => do_init(&repo, &current_dir)?,
+        Some(Subcommand::List) => do_list(&repo)?,
         Some(Subcommand::Remove) => do_remove(&repo, &current_dir)?,
         Some(Subcommand::Show) => do_show(&repo, &current_dir)?,
         None => do_show(&repo, &current_dir)?,
