@@ -1,8 +1,9 @@
-use crate::dir::Dir;
 use crate::repo::Repo;
 use anyhow::Result;
+use std::path::Path;
 
-pub fn do_init(repo: &Repo, dir: &Dir) -> Result<()> {
-    repo.init_metadata(dir)?;
+pub fn do_init(repo: &Repo, project_dir: &Path) -> Result<()> {
+    let metadir = repo.init_metadirectory(project_dir)?;
+    println!("{:#?}", metadir);
     Ok(())
 }

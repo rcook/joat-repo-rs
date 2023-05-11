@@ -1,3 +1,5 @@
+use crate::hex_digest::HexDigest;
+use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
 use std::path::PathBuf;
@@ -18,27 +20,28 @@ pub struct Args {
 
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
-    #[command(name = "init", about = "Initialize metadata for directory")]
-    Init,
-
-    #[command(name = "ls", about = "Show metadata for all directories")]
-    List,
-
-    #[command(name = "rm", about = "Remove metadata for directory")]
-    Remove,
-
     #[command(
-        name = "reg",
-        about = "Register directory with existing metadata directory"
+        name = "alias",
+        about = "Register directory as alias of existing directory with metadata"
     )]
-    Register {
-        #[arg(name = "hash")]
-        hash: String,
-
-        #[arg(name = "dir")]
-        dir: PathBuf,
+    Alias {
+        #[arg(name = "ref", value_parser = parse_hex_digest)]
+        reference: HexDigest,
     },
 
-    #[command(name = "show", about = "Show metadata for directory")]
+    #[command(name = "init", about = "Initialize metadirectory")]
+    Init,
+
+    #[command(name = "ls", about = "Show all metadirectory info")]
+    List,
+
+    #[command(name = "rm", about = "Remove metadirectory")]
+    Remove,
+
+    #[command(name = "show", about = "Show metadirectory info")]
     Show,
+}
+
+fn parse_hex_digest(s: &str) -> Result<HexDigest> {
+    Ok(HexDigest::new(s))
 }
