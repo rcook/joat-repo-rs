@@ -1,17 +1,18 @@
 use crate::repo::Repo;
 use crate::status::Status;
 use anyhow::Result;
+use log::{error, info};
 use std::path::Path;
 
 pub fn do_show(repo: &Repo, project_dir: &Path) -> Result<Status> {
     Ok(match repo.get_metadir(project_dir)? {
         Some(metadir) => {
-            println!("{:#?}", metadir);
+            info!("{:#?}", metadir);
             Status::Success
         }
         None => {
-            println!(
-                "No metadirectory for found for directory {}",
+            error!(
+                "No metadirectory found for directory {}",
                 project_dir.display()
             );
             Status::Failure

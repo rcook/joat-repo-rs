@@ -1,7 +1,7 @@
 use crate::repo::Repo;
 use crate::status::Status;
 use anyhow::Result;
-use log::info;
+use log::{error, info};
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use uuid::Uuid;
@@ -51,17 +51,40 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
 }
 
 pub fn do_link(repo: &Repo, meta_id: &Option<Uuid>, project_dir: &Path) -> Result<Status> {
+    if let Some(link) = repo.read_link(project_dir)? {
+        error!(
+            "Link {} already exists for directory {}",
+            link.link.link_id.as_str(),
+            project_dir.display()
+        );
+        return Ok(Status::Failure);
+    }
+
     let meta_id = match *meta_id {
         Some(value) => value,
         None => match prompt_for_meta_id(repo)? {
             Some(value) => value,
             None => {
-                info!("could not create link for {}", project_dir.display());
+                error!(
+                    "Could not create link for directory {}",
+                    project_dir.display()
+                );
                 return Ok(Status::Failure);
             }
         },
     };
 
-    repo.link_metadir(&meta_id, project_dir)?;
-    Ok(Status::Success)
+    Ok(match repo.link_metadir(&meta_id, project_dir)? {
+        Some(metadir) => {
+            info!("{:#?}", metadir);
+            Status::Success
+        }
+        None => {
+            error!(
+                "Could not create link for directory {}",
+                project_dir.display()
+            );
+            Status::Failure
+        }
+    })
 }

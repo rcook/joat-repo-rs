@@ -42,7 +42,9 @@ impl Repo {
         for entry_opt in read_dir(&self.dir)? {
             let entry = entry_opt?;
             if entry.path().is_file() {
-                links.push(self.read_link_from_link_path(&entry.path())?);
+                if let Some(link) = self.read_link_from_link_path(&entry.path())? {
+                    links.push(link)
+                }
             }
         }
 
@@ -93,10 +95,7 @@ impl Repo {
         let link_id = HexDigest::from_path(project_dir)?;
         let link_path = self.dir.join(format!("{}.yaml", link_id.as_str()));
         if !link_path.is_file() {
-            bail!(
-                "link file does not exit for directory {}",
-                project_dir.display()
-            );
+            return Ok(None);
         }
 
         let link = read_yaml_file::<Link, _>(&link_path)?;
@@ -138,25 +137,34 @@ impl Repo {
         })
     }
 
-    pub fn read_link_from_link_path(&self, link_path: &Path) -> Result<LinkEx> {
-        let link = read_yaml_file(&link_path)?;
-        Ok(LinkEx {
-            link_path: link_path.to_path_buf(),
-            link,
-        })
+    pub fn read_link(&self, project_dir: &Path) -> Result<Option<LinkEx>> {
+        let link_id = HexDigest::from_path(project_dir)?;
+        let link_path = self.make_link_path(&link_id);
+        self.read_link_from_link_path(&link_path)
     }
 
-    pub fn link_metadir(&self, meta_id: &Uuid, project_dir: &Path) -> Result<Metadir> {
+    pub fn read_link_from_link_path(&self, link_path: &Path) -> Result<Option<LinkEx>> {
+        match read_yaml_file(&link_path) {
+            Ok(link) => Ok(Some(LinkEx {
+                link_path: link_path.to_path_buf(),
+                link,
+            })),
+            Err(e) if e.is_other() => {
+                // TBD: We need a way to introspect into the "Other" error
+                // to determine if this is really a "file not found"
+                Ok(None)
+            }
+            Err(e) => bail!(e),
+        }
+    }
+
+    pub fn link_metadir(&self, meta_id: &Uuid, project_dir: &Path) -> Result<Option<Metadir>> {
         let manifest = self.read_manifest(&meta_id)?;
 
         let link_id = HexDigest::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if link_path.is_file() {
-            bail!(
-                "link file {} already exists for directory {}",
-                link_path.display(),
-                project_dir.display()
-            );
+            return Ok(None);
         }
 
         let link = Link {
@@ -167,10 +175,10 @@ impl Repo {
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        return Ok(Metadir {
+        return Ok(Some(Metadir {
             manifest,
             link: LinkEx { link_path, link },
-        });
+        }));
     }
 
     fn make_link_path(&self, link_id: &HexDigest) -> PathBuf {
