@@ -23,7 +23,7 @@ use crate::show_command::do_show;
 use crate::status::Status;
 use anyhow::{anyhow, Result};
 use clap::Parser;
-use log::{set_logger, set_max_level, LevelFilter, SetLoggerError};
+use log::{set_logger, set_max_level, LevelFilter};
 use path_absolutize::Absolutize;
 use std::env::{current_dir, set_var};
 use std::path::{Path, PathBuf};

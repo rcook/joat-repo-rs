@@ -133,11 +133,6 @@ impl Repo {
         })
     }
 
-    pub fn read_link(&self, link_id: &HexDigest) -> Result<LinkEx> {
-        let link_path = self.make_link_path(link_id);
-        self.read_link_from_link_path(&link_path)
-    }
-
     pub fn read_link_from_link_path(&self, link_path: &Path) -> Result<LinkEx> {
         let link = read_yaml_file(&link_path)?;
         Ok(LinkEx {
@@ -170,19 +165,6 @@ impl Repo {
             manifest,
             link: LinkEx { link_path, link },
         });
-    }
-
-    #[allow(unused)]
-    pub fn write_metadata(&self, metadir: &Metadir, overwrite: bool) -> Result<()> {
-        todo!();
-        /*
-        safe_write_file(
-            &metadata.manifest_path,
-            serde_yaml::to_string(&metadata.manifest)?,
-            overwrite,
-        )?;
-        Ok(())
-        */
     }
 
     fn make_link_path(&self, link_id: &HexDigest) -> PathBuf {

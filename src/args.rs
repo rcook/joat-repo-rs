@@ -1,5 +1,3 @@
-use crate::hex_digest::HexDigest;
-use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
 use std::path::PathBuf;
