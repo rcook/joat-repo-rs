@@ -3,6 +3,7 @@ use crate::link::{Link, LinkEx};
 use crate::manifest::{Manifest, ManifestEx};
 use crate::metadir::Metadir;
 use anyhow::{bail, Result};
+use chrono::Utc;
 use joatmon::{read_yaml_file, safe_write_file};
 use log::info;
 use std::fs::read_dir;
@@ -64,10 +65,14 @@ impl Repo {
         let data_dir = self.make_data_dir(&meta_id);
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
 
-        let manifest = Manifest { meta_id };
+        let manifest = Manifest {
+            created_at: Utc::now(),
+            meta_id,
+        };
         safe_write_file(&manifest_path, serde_yaml::to_string(&manifest)?, false)?;
 
         let link = Link {
+            created_at: Utc::now(),
             link_id: link_id,
             project_dir: project_dir.to_path_buf(),
             meta_id: meta_id,
@@ -155,6 +160,7 @@ impl Repo {
         }
 
         let link = Link {
+            created_at: Utc::now(),
             link_id: link_id,
             project_dir: project_dir.to_path_buf(),
             meta_id: meta_id.clone(),
