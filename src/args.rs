@@ -33,7 +33,7 @@ pub enum Subcommand {
     #[command(name = "ls", about = "Show all metadirectory info")]
     List,
 
-    #[command(name = "rm", about = "Remove metadirectory")]
+    #[command(name = "rm", about = "Unlink metadirectory")]
     Remove,
 
     #[command(name = "show", about = "Show metadirectory info")]

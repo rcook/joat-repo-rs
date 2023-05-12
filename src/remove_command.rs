@@ -1,14 +1,17 @@
 use crate::repo::Repo;
 use anyhow::Result;
-use std::fs::remove_dir_all;
+use std::fs::remove_file;
 use std::path::Path;
 
 pub fn do_remove(repo: &Repo, project_dir: &Path) -> Result<()> {
-    /*
-    match repo.get_metadata(project_dir)? {
-        Some(metadata) => remove_dir_all(metadata.data_dir)?,
-        None => println!("No metadata for found for this directory"),
-    }
-    */
+    let metadir = match repo.get_metadir(project_dir)? {
+        Some(value) => value,
+        None => {
+            println!("No metadirectory for found for this directory");
+            return Ok(());
+        }
+    };
+
+    remove_file(&metadir.link.link_path)?;
     Ok(())
 }
