@@ -11,6 +11,7 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
     let manifest_count = manifests.len();
 
     if manifest_count == 0 {
+        error!("No metadirectories exist yet!");
         return Ok(None);
     }
 
@@ -24,7 +25,7 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
     }
 
     if manifest_count > 1 {
-        print!("Enter 1 to {} or Q to quit: ", manifest_count);
+        print!("Enter 1-{} or Q to quit: ", manifest_count);
     } else {
         print!("Enter 1 or Q to quit: ");
     }
@@ -64,13 +65,7 @@ pub fn do_link(repo: &Repo, meta_id: &Option<Uuid>, project_dir: &Path) -> Resul
         Some(value) => value,
         None => match prompt_for_meta_id(repo)? {
             Some(value) => value,
-            None => {
-                error!(
-                    "Could not create link for directory {}",
-                    project_dir.display()
-                );
-                return Ok(Status::Failure);
-            }
+            None => return Ok(Status::Failure),
         },
     };
 
