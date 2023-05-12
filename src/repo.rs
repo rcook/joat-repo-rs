@@ -1,7 +1,7 @@
 use crate::hex_digest::HexDigest;
 use crate::link::{Link, LinkEx};
 use crate::manifest::{Manifest, ManifestEx};
-use crate::metadirectory::Metadirectory;
+use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use joatmon::{read_yaml_file, safe_write_file};
 use std::path::{Path, PathBuf};
@@ -20,7 +20,7 @@ impl Repo {
         }
     }
 
-    pub fn init_metadirectory(&self, project_dir: &Path) -> Result<Metadirectory> {
+    pub fn init_metadir(&self, project_dir: &Path) -> Result<Metadir> {
         let link_id = HexDigest::from_path(project_dir)?;
         let link_path = self.dir.join(format!("{}.yaml", link_id.as_str()));
         if link_path.is_file() {
@@ -45,7 +45,7 @@ impl Repo {
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        return Ok(Metadirectory {
+        return Ok(Metadir {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
@@ -55,7 +55,7 @@ impl Repo {
         });
     }
 
-    pub fn get_metadirectory(&self, project_dir: &Path) -> Result<Option<Metadirectory>> {
+    pub fn get_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
         let link_id = HexDigest::from_path(project_dir)?;
         let link_path = self.dir.join(format!("{}.yaml", link_id.as_str()));
         if !link_path.is_file() {
@@ -79,7 +79,7 @@ impl Repo {
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
         let manifest = read_yaml_file::<Manifest, _>(&manifest_path)?;
 
-        return Ok(Some(Metadirectory {
+        return Ok(Some(Metadir {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
@@ -125,7 +125,7 @@ impl Repo {
     }
 
     #[allow(unused)]
-    pub fn write_metadata(&self, metadata: &Metadirectory, overwrite: bool) -> Result<()> {
+    pub fn write_metadata(&self, metadir: &Metadir, overwrite: bool) -> Result<()> {
         todo!();
         /*
         safe_write_file(

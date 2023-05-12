@@ -5,7 +5,7 @@ mod init_command;
 mod link;
 mod list_command;
 mod manifest;
-mod metadirectory;
+mod metadir;
 mod remove_command;
 mod repo;
 mod show_command;

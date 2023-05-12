@@ -3,7 +3,7 @@ use crate::manifest::ManifestEx;
 use std::path::PathBuf;
 
 #[derive(Debug)]
-pub struct Metadirectory {
+pub struct Metadir {
     pub manifest: ManifestEx,
     pub link: LinkEx,
 }
