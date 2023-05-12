@@ -26,10 +26,12 @@ impl Repo {
     pub fn list_manifests(&self) -> Result<Vec<ManifestEx>> {
         let mut manifests = Vec::new();
 
-        for entry_opt in read_dir(&self.dir)? {
-            let entry = entry_opt?;
-            if entry.path().is_dir() {
-                manifests.push(self.read_manifest_from_datadir(&entry.path())?);
+        if self.dir.is_dir() {
+            for entry_opt in read_dir(&self.dir)? {
+                let entry = entry_opt?;
+                if entry.path().is_dir() {
+                    manifests.push(self.read_manifest_from_datadir(&entry.path())?);
+                }
             }
         }
 
@@ -39,11 +41,13 @@ impl Repo {
     pub fn list_links(&self) -> Result<Vec<LinkEx>> {
         let mut links = Vec::new();
 
-        for entry_opt in read_dir(&self.dir)? {
-            let entry = entry_opt?;
-            if entry.path().is_file() {
-                if let Some(link) = self.read_link_from_link_path(&entry.path())? {
-                    links.push(link)
+        if self.dir.is_dir() {
+            for entry_opt in read_dir(&self.dir)? {
+                let entry = entry_opt?;
+                if entry.path().is_file() {
+                    if let Some(link) = self.read_link_from_link_path(&entry.path())? {
+                        links.push(link)
+                    }
                 }
             }
         }
