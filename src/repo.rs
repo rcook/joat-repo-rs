@@ -4,7 +4,7 @@ use crate::manifest::{Manifest, ManifestEx};
 use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use chrono::Utc;
-use joatmon::{read_yaml_file, safe_write_file};
+use joatmon::{read_yaml_file, safe_write_file, FileReadError, HasOtherError};
 use log::info;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
@@ -75,20 +75,20 @@ impl Repo {
 
         let link = Link {
             created_at: Utc::now(),
-            link_id: link_id,
+            link_id,
             project_dir: project_dir.to_path_buf(),
-            meta_id: meta_id,
+            meta_id,
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        return Ok(Some(Metadir {
+        Ok(Some(Metadir {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
                 manifest,
             },
             link: LinkEx { link_path, link },
-        }));
+        }))
     }
 
     pub fn get_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
@@ -112,14 +112,14 @@ impl Repo {
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
         let manifest = read_yaml_file::<Manifest, _>(&manifest_path)?;
 
-        return Ok(Some(Metadir {
+        Ok(Some(Metadir {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
                 manifest,
             },
             link: LinkEx { link_path, link },
-        }));
+        }))
     }
 
     pub fn read_manifest(&self, meta_id: &Uuid) -> Result<ManifestEx> {
@@ -144,14 +144,16 @@ impl Repo {
     }
 
     pub fn read_link_from_link_path(&self, link_path: &Path) -> Result<Option<LinkEx>> {
-        match read_yaml_file(&link_path) {
+        match read_yaml_file(link_path) {
             Ok(link) => Ok(Some(LinkEx {
                 link_path: link_path.to_path_buf(),
                 link,
             })),
-            Err(e) if e.is_other() => {
-                // TBD: We need a way to introspect into the "Other" error
-                // to determine if this is really a "file not found"
+            Err(e)
+                if e.downcast_other_ref::<FileReadError>()
+                    .map(FileReadError::is_not_found)
+                    .unwrap_or(false) =>
+            {
                 Ok(None)
             }
             Err(e) => bail!(e),
@@ -159,7 +161,7 @@ impl Repo {
     }
 
     pub fn link_metadir(&self, meta_id: &Uuid, project_dir: &Path) -> Result<Option<Metadir>> {
-        let manifest = self.read_manifest(&meta_id)?;
+        let manifest = self.read_manifest(meta_id)?;
 
         let link_id = HexDigest::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
@@ -169,16 +171,16 @@ impl Repo {
 
         let link = Link {
             created_at: Utc::now(),
-            link_id: link_id,
+            link_id,
             project_dir: project_dir.to_path_buf(),
-            meta_id: meta_id.clone(),
+            meta_id: *meta_id,
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        return Ok(Some(Metadir {
+        Ok(Some(Metadir {
             manifest,
             link: LinkEx { link_path, link },
-        }));
+        }))
     }
 
     fn make_link_path(&self, link_id: &HexDigest) -> PathBuf {
