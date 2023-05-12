@@ -24,7 +24,7 @@ pub enum Subcommand {
     #[command(name = "init", about = "Initialize metadirectory")]
     Init,
 
-    #[command(name = "ln", about = "Register link to existing metadirectory")]
+    #[command(name = "ln", about = "Create link to existing metadirectory")]
     Link {
         #[arg(long = "ref", short = 'r', help = "Existing metadirectory ID")]
         meta_id: Option<Uuid>,
