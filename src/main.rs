@@ -1,4 +1,5 @@
 mod args;
+mod clean_command;
 mod hex_digest;
 mod init_command;
 mod link;
@@ -13,6 +14,7 @@ mod show_command;
 mod status;
 
 use crate::args::{Args, Subcommand};
+use crate::clean_command::do_clean;
 use crate::init_command::do_init;
 use crate::link_command::do_link;
 use crate::list_command::do_list;
@@ -64,6 +66,7 @@ fn run() -> Result<Status> {
     let repo_dir = get_repo_dir(&project_dir, &args)?;
     let repo = Repo::new(&repo_dir);
     match args.subcommand {
+        Some(Subcommand::Clean) => do_clean(&repo),
         Some(Subcommand::Init) => do_init(&repo, &project_dir),
         Some(Subcommand::Link { meta_id }) => do_link(&repo, &meta_id, &project_dir),
         Some(Subcommand::List) => do_list(&repo),

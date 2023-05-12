@@ -19,6 +19,9 @@ pub struct Args {
 
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
+    #[command(name = "clean", about = "Clean unreferenced metadirectories")]
+    Clean,
+
     #[command(name = "init", about = "Initialize metadirectory")]
     Init,
 
