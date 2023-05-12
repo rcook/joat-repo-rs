@@ -5,9 +5,9 @@ use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Link {
-    pub id: HexDigest,
+    pub link_id: HexDigest,
     pub project_dir: PathBuf,
-    pub reference: Uuid,
+    pub meta_id: Uuid,
 }
 
 #[derive(Debug)]

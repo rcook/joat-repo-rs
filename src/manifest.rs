@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Manifest {
-    pub id: Uuid,
+    pub meta_id: Uuid,
 }
 
 #[derive(Debug)]

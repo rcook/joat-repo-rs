@@ -3,6 +3,7 @@ use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
 use std::path::PathBuf;
+use uuid::Uuid;
 
 #[derive(Debug, Parser)]
 pub struct Args {
@@ -20,17 +21,14 @@ pub struct Args {
 
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
-    #[command(
-        name = "alias",
-        about = "Register directory as alias of existing directory with metadata"
-    )]
-    Alias {
-        #[arg(name = "ref", value_parser = parse_hex_digest)]
-        reference: HexDigest,
-    },
-
     #[command(name = "init", about = "Initialize metadirectory")]
     Init,
+
+    #[command(name = "ln", about = "Register link to existing metadirectory")]
+    Link {
+        #[arg(long = "ref", short = 'r', help = "Existing metadirectory ID")]
+        meta_id: Option<Uuid>,
+    },
 
     #[command(name = "ls", about = "Show all metadirectory info")]
     List,
@@ -40,8 +38,4 @@ pub enum Subcommand {
 
     #[command(name = "show", about = "Show metadirectory info")]
     Show,
-}
-
-fn parse_hex_digest(s: &str) -> Result<HexDigest> {
-    Ok(HexDigest::new(s))
 }
