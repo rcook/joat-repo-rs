@@ -4,6 +4,7 @@ use crate::manifest::{Manifest, ManifestEx};
 use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use joatmon::{read_yaml_file, safe_write_file};
+use log::info;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
@@ -47,15 +48,16 @@ impl Repo {
         Ok(links)
     }
 
-    pub fn init_metadir(&self, project_dir: &Path) -> Result<Metadir> {
+    pub fn init_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
         let link_id = HexDigest::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if link_path.is_file() {
-            bail!(
+            info!(
                 "link file {} already exists for directory {}",
                 link_path.display(),
                 project_dir.display()
             );
+            return Ok(None);
         }
 
         let meta_id = Uuid::new_v4();
@@ -72,14 +74,14 @@ impl Repo {
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        return Ok(Metadir {
+        return Ok(Some(Metadir {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
                 manifest,
             },
             link: LinkEx { link_path, link },
-        });
+        }));
     }
 
     pub fn get_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {

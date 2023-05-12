@@ -1,7 +1,8 @@
 use crate::repo::Repo;
+use crate::status::Status;
 use anyhow::Result;
 
-pub fn do_list(repo: &Repo) -> Result<()> {
+pub fn do_list(repo: &Repo) -> Result<Status> {
     for manifest in repo.list_manifests()? {
         println!("{:#?}", manifest);
     }
@@ -10,5 +11,5 @@ pub fn do_list(repo: &Repo) -> Result<()> {
         println!("{:#?}", link);
     }
 
-    Ok(())
+    Ok(Status::Success)
 }

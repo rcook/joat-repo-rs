@@ -1,7 +1,8 @@
 use crate::repo::Repo;
+use crate::status::Status;
 use anyhow::Result;
+use log::info;
 use std::io::{stdin, stdout, Write};
-use std::num::ParseIntError;
 use std::path::Path;
 use uuid::Uuid;
 
@@ -49,15 +50,18 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
     Ok(Some(manifests[index - 1].manifest.meta_id))
 }
 
-pub fn do_link(repo: &Repo, meta_id: &Option<Uuid>, project_dir: &Path) -> Result<()> {
+pub fn do_link(repo: &Repo, meta_id: &Option<Uuid>, project_dir: &Path) -> Result<Status> {
     let meta_id = match *meta_id {
         Some(value) => value,
         None => match prompt_for_meta_id(repo)? {
             Some(value) => value,
-            None => return Ok(()),
+            None => {
+                info!("could not create link for {}", project_dir.display());
+                return Ok(Status::Failure);
+            }
         },
     };
 
     repo.link_metadir(&meta_id, project_dir)?;
-    Ok(())
+    Ok(Status::Success)
 }
