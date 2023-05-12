@@ -11,9 +11,9 @@ impl HexDigest {
         Self(String::from(value))
     }
 
-    pub fn from_path(config_path: &Path) -> Result<Self> {
-        let config_path_str = config_path.to_str().ok_or(anyhow!("cannot convert path"))?;
-        let digest = compute(config_path_str);
+    pub fn from_path(project_dir: &Path) -> Result<Self> {
+        let project_dir_str = project_dir.to_str().ok_or(anyhow!("cannot convert path"))?;
+        let digest = compute(project_dir_str);
         let hex_digest = format!("{:x}", digest);
         Ok(Self(hex_digest))
     }

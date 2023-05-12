@@ -4,6 +4,7 @@ use crate::manifest::{Manifest, ManifestEx};
 use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use joatmon::{read_yaml_file, safe_write_file};
+use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
@@ -18,6 +19,32 @@ impl Repo {
         Self {
             dir: PathBuf::from(dir),
         }
+    }
+
+    pub fn list_manifests(&self) -> Result<Vec<ManifestEx>> {
+        let mut manifests = Vec::new();
+
+        for entry_opt in read_dir(&self.dir)? {
+            let entry = entry_opt?;
+            if entry.path().is_dir() {
+                manifests.push(self.read_manifest_from_datadir(&entry.path())?);
+            }
+        }
+
+        Ok(manifests)
+    }
+
+    pub fn list_links(&self) -> Result<Vec<LinkEx>> {
+        let mut links = Vec::new();
+
+        for entry_opt in read_dir(&self.dir)? {
+            let entry = entry_opt?;
+            if entry.path().is_file() {
+                links.push(self.read_link_from_link_path(&entry.path())?);
+            }
+        }
+
+        Ok(links)
     }
 
     pub fn init_metadir(&self, project_dir: &Path) -> Result<Metadir> {
@@ -117,21 +144,30 @@ impl Repo {
         })
     }
 
-    pub fn link_metadir(&self, reference: &HexDigest, project_dir: &Path) -> Result<()> {
-        todo!();
-        /*
-        let id = HexDigest::from_path(project_dir)?;
+    pub fn link_metadir(&self, meta_id: &Uuid, project_dir: &Path) -> Result<Metadir> {
+        let manifest = self.read_manifest(&meta_id)?;
 
-        let alias = Alias {
-            id: id.clone(),
+        let link_id = HexDigest::from_path(project_dir)?;
+        let link_path = self.make_link_path(&link_id);
+        if link_path.is_file() {
+            bail!(
+                "link file {} already exists for directory {}",
+                link_path.display(),
+                project_dir.display()
+            );
+        }
+
+        let link = Link {
+            link_id: link_id,
             project_dir: project_dir.to_path_buf(),
-            reference: reference.clone(),
+            meta_id: meta_id.clone(),
         };
+        safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        let alias_path = self.dir.join(format!("{}.yaml", link_id.as_str()));
-        safe_write_file(alias_path, serde_yaml::to_string(&alias)?, false)?;
-        Ok(())
-        */
+        return Ok(Metadir {
+            manifest,
+            link: LinkEx { link_path, link },
+        });
     }
 
     #[allow(unused)]
