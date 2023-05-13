@@ -1,6 +1,6 @@
 use super::super::{prompt, Status};
 use anyhow::Result;
-use faf::{MetaId, Repo};
+use joat_repo::{MetaId, Repo};
 use log::{error, info};
 use std::path::Path;
 

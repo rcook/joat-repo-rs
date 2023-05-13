@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
-use faf::MetaId;
+use joat_repo::MetaId;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]

@@ -6,7 +6,7 @@ use crate::cli::{
 };
 use anyhow::{anyhow, Result};
 use clap::Parser;
-use faf::{Repo, RepoConfig};
+use joat_repo::{Repo, RepoConfig};
 use log::error;
 use log::{set_logger, set_max_level, LevelFilter};
 use path_absolutize::Absolutize;
@@ -41,7 +41,7 @@ fn get_repo_dir(project_dir: &Path, args: &Args) -> Result<PathBuf> {
         Some(repo_dir) => repo_dir.absolutize_from(project_dir)?.to_path_buf(),
         _ => {
             let mut repo_dir = home::home_dir().ok_or(anyhow!("cannot get home directory"))?;
-            repo_dir.push(".faf");
+            repo_dir.push(".joat-repo-test");
             repo_dir
         }
     })

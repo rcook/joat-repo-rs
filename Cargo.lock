@@ -264,27 +264,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "faf"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "clap",
- "color-backtrace",
- "colored",
- "fslock",
- "home",
- "joatmon",
- "log",
- "md5",
- "path-absolutize",
- "serde",
- "serde_yaml",
- "tempdir",
- "uuid",
-]
-
-[[package]]
 name = "fslock"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -509,6 +488,27 @@ name = "itoa"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
+
+[[package]]
+name = "joat-repo"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "color-backtrace",
+ "colored",
+ "fslock",
+ "home",
+ "joatmon",
+ "log",
+ "md5",
+ "path-absolutize",
+ "serde",
+ "serde_yaml",
+ "tempdir",
+ "uuid",
+]
 
 [[package]]
 name = "joatmon"

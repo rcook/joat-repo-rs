@@ -1,6 +1,6 @@
 use super::super::Status;
 use anyhow::Result;
-use faf::Repo;
+use joat_repo::Repo;
 
 pub fn do_info(repo: &Repo) -> Result<Status> {
     println!("{:#?}", repo);

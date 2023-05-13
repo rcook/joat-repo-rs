@@ -1,6 +1,6 @@
 use super::super::Status;
 use anyhow::Result;
-use faf::{Repo, Trash};
+use joat_repo::{Repo, Trash};
 use log::error;
 use std::fs::remove_file;
 use std::path::Path;

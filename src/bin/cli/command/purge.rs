@@ -1,6 +1,6 @@
 use super::super::Status;
 use anyhow::Result;
-use faf::Repo;
+use joat_repo::Repo;
 use log::error;
 
 pub fn do_purge(repo: &Repo, force: bool) -> Result<Status> {

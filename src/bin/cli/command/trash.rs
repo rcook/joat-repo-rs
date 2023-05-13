@@ -1,6 +1,6 @@
 use super::super::Status;
 use anyhow::Result;
-use faf::{Repo, Trash};
+use joat_repo::{Repo, Trash};
 use log::info;
 
 pub fn do_trash(repo: &Repo, clean: bool) -> Result<Status> {
