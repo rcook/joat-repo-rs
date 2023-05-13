@@ -1,8 +1,8 @@
 use crate::repo::Repo;
 use crate::status::Status;
+use crate::util::prompt;
 use anyhow::Result;
 use log::{error, info};
-use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use uuid::Uuid;
 
@@ -24,17 +24,11 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
         )
     }
 
-    if manifest_count > 1 {
-        print!("Enter 1-{} or Q to quit: ", manifest_count);
+    let line = if manifest_count > 1 {
+        prompt(&format!("Enter 1-{} or Q to quit", manifest_count))?
     } else {
-        print!("Enter 1 or Q to quit: ");
-    }
-    stdout().flush()?;
-
-    let mut line = String::new();
-    stdin().read_line(&mut line)?;
-
-    let line = line.trim().to_lowercase();
+        prompt("Enter 1 or Q to quit")?
+    };
     if line == "q" {
         return Ok(None);
     }
