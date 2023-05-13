@@ -27,6 +27,7 @@ use crate::show_command::do_show;
 use crate::status::Status;
 use anyhow::{anyhow, Result};
 use clap::Parser;
+use log::error;
 use log::{set_logger, set_max_level, LevelFilter};
 use path_absolutize::Absolutize;
 use std::env::{current_dir, set_var, var, VarError};
@@ -80,13 +81,24 @@ fn run() -> Result<Status> {
     let args = Args::parse();
     let project_dir = current_dir()?;
     let repo_dir = get_repo_dir(&project_dir, &args)?;
-    let repo = Repo::new(&repo_dir);
+    if let Some(repo) = Repo::new(&repo_dir)? {
+        run_command(&args, &repo, &project_dir)
+    } else {
+        error!(
+            "Repository at {} is currently in use by another program or lock file is invalid",
+            repo_dir.display()
+        );
+        Ok(Status::Failure)
+    }
+}
+
+fn run_command(args: &Args, repo: &Repo, project_dir: &Path) -> Result<Status> {
     match args.subcommand {
-        Subcommand::Clean { force } => do_clean(&repo, force),
-        Subcommand::Init => do_init(&repo, &project_dir),
-        Subcommand::Link { meta_id } => do_link(&repo, &meta_id, &project_dir),
-        Subcommand::List => do_list(&repo),
-        Subcommand::Remove => do_remove(&repo, &project_dir),
-        Subcommand::Show => do_show(&repo, &project_dir),
+        Subcommand::Clean { force } => do_clean(repo, force),
+        Subcommand::Init => do_init(repo, project_dir),
+        Subcommand::Link { meta_id } => do_link(repo, &meta_id, project_dir),
+        Subcommand::List => do_list(repo),
+        Subcommand::Remove => do_remove(repo, project_dir),
+        Subcommand::Show => do_show(repo, project_dir),
     }
 }

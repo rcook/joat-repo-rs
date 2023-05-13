@@ -4,30 +4,46 @@ use crate::manifest::{Manifest, ManifestEx};
 use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use chrono::Utc;
+use fslock::LockFile;
 use joatmon::{read_yaml_file, safe_write_file, FileReadError, HasOtherError};
 use log::info;
+use std::fs::create_dir_all;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
 const MANIFEST_FILE_NAME: &str = "manifest.yaml";
+const MANIFESTS_DIR: &str = "manifests";
+const LINKS_DIR: &str = "links";
 
 pub struct Repo {
     pub dir: PathBuf,
+    manifests_dir: PathBuf,
+    links_dir: PathBuf,
+    _lock_file: LockFile,
 }
 
 impl Repo {
-    pub fn new(dir: &Path) -> Self {
-        Self {
-            dir: PathBuf::from(dir),
-        }
+    pub fn new(dir: &Path) -> Result<Option<Self>> {
+        create_dir_all(dir)?;
+        let mut lock_file = LockFile::open(&dir.join(".lock"))?;
+        Ok(if lock_file.try_lock_with_pid()? {
+            Some(Self {
+                dir: PathBuf::from(dir),
+                manifests_dir: dir.join(MANIFESTS_DIR),
+                links_dir: dir.join(LINKS_DIR),
+                _lock_file: lock_file,
+            })
+        } else {
+            None
+        })
     }
 
     pub fn list_manifests(&self) -> Result<Vec<ManifestEx>> {
         let mut manifests = Vec::new();
 
-        if self.dir.is_dir() {
-            for entry_opt in read_dir(&self.dir)? {
+        if self.manifests_dir.is_dir() {
+            for entry_opt in read_dir(&self.manifests_dir)? {
                 let entry = entry_opt?;
                 if entry.path().is_dir() {
                     manifests.push(self.read_manifest_from_datadir(&entry.path())?);
@@ -41,8 +57,8 @@ impl Repo {
     pub fn list_links(&self) -> Result<Vec<LinkEx>> {
         let mut links = Vec::new();
 
-        if self.dir.is_dir() {
-            for entry_opt in read_dir(&self.dir)? {
+        if self.links_dir.is_dir() {
+            for entry_opt in read_dir(&self.links_dir)? {
                 let entry = entry_opt?;
                 if entry.path().is_file() {
                     if let Some(link) = self.read_link_from_link_path(&entry.path())? {
@@ -98,7 +114,7 @@ impl Repo {
 
     pub fn get_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
         let link_id = HexDigest::from_path(project_dir)?;
-        let link_path = self.dir.join(format!("{}.yaml", link_id.as_str()));
+        let link_path = self.make_link_path(&link_id);
         if !link_path.is_file() {
             return Ok(None);
         }
@@ -188,11 +204,11 @@ impl Repo {
         }))
     }
 
-    fn make_link_path(&self, link_id: &HexDigest) -> PathBuf {
-        self.dir.join(format!("{}.yaml", link_id.as_str()))
+    fn make_data_dir(&self, meta_id: &Uuid) -> PathBuf {
+        self.manifests_dir.join(format!("{}", meta_id.as_simple()))
     }
 
-    fn make_data_dir(&self, meta_id: &Uuid) -> PathBuf {
-        self.dir.join(format!("{}", meta_id.as_simple()))
+    fn make_link_path(&self, link_id: &HexDigest) -> PathBuf {
+        self.links_dir.join(format!("{}.yaml", link_id.as_str()))
     }
 }
