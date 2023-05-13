@@ -9,6 +9,7 @@ edition = "2021"
 anyhow = "1.0.71"
 chrono = { version = "0.4.24", features = ["serde"] }
 clap = { version = "4.2.7", features = ["derive"] }
+color-backtrace = "0.5.1"
 home = "0.5.5"
 joatmon = "0.0.22"
 log = "0.4.17"

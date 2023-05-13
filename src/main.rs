@@ -27,11 +27,21 @@ use anyhow::{anyhow, Result};
 use clap::Parser;
 use log::{set_logger, set_max_level, LevelFilter};
 use path_absolutize::Absolutize;
-use std::env::{current_dir, set_var};
+use std::env::{current_dir, set_var, var, VarError};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
+const RUST_BACKTRACE_ENV_NAME: &str = "RUST_BACKTRACE";
+
 static LOGGER: Logger = Logger;
+
+fn init_backtrace() {
+    if let Err(VarError::NotPresent) = var(RUST_BACKTRACE_ENV_NAME) {
+        set_var(RUST_BACKTRACE_ENV_NAME, "1")
+    }
+
+    color_backtrace::install();
+}
 
 fn init_logger() -> Result<()> {
     set_logger(&LOGGER).map_err(|e| anyhow!(e))?;
@@ -51,7 +61,7 @@ fn get_repo_dir(project_dir: &Path, args: &Args) -> Result<PathBuf> {
 }
 
 fn main() -> Result<()> {
-    set_var("RUST_BACKTRACE", "1");
+    init_backtrace();
     init_logger()?;
 
     exit(match run()? {
