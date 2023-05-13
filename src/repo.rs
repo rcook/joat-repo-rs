@@ -3,11 +3,13 @@ use crate::link::{Link, LinkEx};
 use crate::link_id::LinkId;
 use crate::manifest::{Manifest, ManifestEx};
 use crate::meta_id::MetaId;
+use crate::shared_path::SharedPath;
 use crate::RepoConfig;
 use anyhow::{bail, Result};
 use chrono::Utc;
 use fslock::LockFile;
-use joatmon::{read_yaml_file, safe_write_file, FileReadError, HasOtherError};
+use joatmon::{read_text_file, read_yaml_file, safe_write_file, FileReadError, HasOtherError};
+use path_absolutize::Absolutize;
 use std::fs::{read_dir, remove_dir_all, remove_file};
 use std::path::{Path, PathBuf};
 
@@ -212,11 +214,36 @@ impl Repo {
         Ok(())
     }
 
+    pub fn read_shared_file(&self, path: &SharedPath) -> Result<Option<String>> {
+        let p = self.resolve_shared_path(path)?;
+        Ok(match read_text_file(p) {
+            Ok(s) => Some(s),
+            Err(e) if e.is_not_found() => None,
+            Err(e) => bail!(e),
+        })
+    }
+
+    pub fn write_shared_file(&self, path: &SharedPath, value: &str) -> Result<()> {
+        let p = self.resolve_shared_path(path)?;
+        safe_write_file(p, value, true)?;
+        Ok(())
+    }
+
     fn make_link_path(&self, link_id: &LinkId) -> PathBuf {
         self.config.links_dir.join(format!("{}.yaml", link_id))
     }
 
     fn make_data_dir(&self, meta_id: &MetaId) -> PathBuf {
         self.config.container_dir.join(format!("{}", meta_id))
+    }
+
+    fn resolve_shared_path(&self, path: &SharedPath) -> Result<PathBuf> {
+        let p = Path::new(path.as_str())
+            .absolutize_from(&self.config.shared_dir)?
+            .into_owned();
+        if !p.starts_with(&self.config.shared_dir) {
+            bail!("Invalid shared path {}", path)
+        }
+        Ok(p)
     }
 }

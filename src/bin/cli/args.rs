@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
-use joat_repo::MetaId;
+use joat_repo::{MetaId, SharedPath};
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -50,6 +50,12 @@ pub enum Subcommand {
         force: bool,
     },
 
+    #[command(name = "read", about = "Read string from shared file")]
+    Read {
+        #[arg(name = "path", help = "Path", value_parser = parse_shared_path)]
+        path: SharedPath,
+    },
+
     #[command(name = "rm", about = "Unlink metadirectory")]
     Remove,
 
@@ -61,8 +67,21 @@ pub enum Subcommand {
         #[arg(long = "clean", default_value = "false", help = "Clean up")]
         clean: bool,
     },
+
+    #[command(name = "write", about = "Save string to shared file")]
+    Write {
+        #[arg(name = "path", help = "Path", value_parser = parse_shared_path)]
+        path: SharedPath,
+
+        #[arg(name = "value", help = "String")]
+        value: String,
+    },
 }
 
 fn parse_meta_id(s: &str) -> Result<MetaId> {
     MetaId::parse(s)
+}
+
+fn parse_shared_path(s: &str) -> Result<SharedPath> {
+    Ok(SharedPath::new(s))
 }
