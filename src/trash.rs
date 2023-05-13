@@ -3,6 +3,7 @@ use crate::manifest::ManifestEx;
 use crate::repo::Repo;
 use anyhow::Result;
 use std::collections::HashMap;
+use std::fs::{remove_dir_all, remove_file};
 
 #[derive(Debug)]
 pub struct Trash {
@@ -80,5 +81,17 @@ impl Trash {
 
     pub fn is_empty(&self) -> bool {
         self.invalid_links.len() + self.unreferenced_manifests.len() == 0
+    }
+
+    pub fn empty(&mut self) -> Result<()> {
+        for l in self.invalid_links.drain(..) {
+            remove_file(&l.link_path)?
+        }
+
+        for m in self.unreferenced_manifests.drain(..) {
+            remove_dir_all(&m.data_dir)?;
+        }
+
+        Ok(())
     }
 }

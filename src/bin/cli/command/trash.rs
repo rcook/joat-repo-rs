@@ -1,11 +1,11 @@
-use super::super::{prompt, Status};
+use super::super::Status;
 use anyhow::Result;
 use faf::{Repo, Trash};
-use log::{error, info};
-use std::fs::{remove_dir_all, remove_file};
+use log::info;
 
-pub fn do_clean(repo: &Repo, force: bool) -> Result<Status> {
-    let trash = Trash::compute(repo)?;
+pub fn do_trash(repo: &Repo, clean: bool) -> Result<Status> {
+    let mut trash = Trash::compute(repo)?;
+
     if trash.is_empty() {
         info!("No clean-up required");
         return Ok(Status::Success);
@@ -33,17 +33,8 @@ pub fn do_clean(repo: &Repo, force: bool) -> Result<Status> {
         }
     }
 
-    if !force && prompt("Type DELETE to delete them")? != "delete" {
-        error!("Aborting clean-up");
-        return Ok(Status::Failure);
-    }
-
-    for l in trash.invalid_links {
-        remove_file(&l.link_path)?
-    }
-
-    for m in trash.unreferenced_manifests {
-        remove_dir_all(&m.data_dir)?;
+    if clean {
+        trash.empty()?;
     }
 
     Ok(Status::Success)

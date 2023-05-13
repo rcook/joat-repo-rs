@@ -20,17 +20,6 @@ pub struct Args {
 
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
-    #[command(name = "clean", about = "Clean unreferenced metadirectories")]
-    Clean {
-        #[arg(
-            long = "force",
-            short = 'f',
-            default_value = "false",
-            help = "Do not prompt before cleaning up"
-        )]
-        force: bool,
-    },
-
     #[command(name = "init", about = "Initialize metadirectory")]
     Init,
 
@@ -53,6 +42,12 @@ pub enum Subcommand {
 
     #[command(name = "show", about = "Show metadirectory info")]
     Show,
+
+    #[command(name = "trash", about = "Show trash and optionally clean up")]
+    Trash {
+        #[arg(long = "clean", default_value = "false", help = "Clean up")]
+        clean: bool,
+    },
 }
 
 fn parse_meta_id(s: &str) -> Result<MetaId> {
