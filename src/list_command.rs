@@ -25,10 +25,11 @@ pub fn do_list(repo: &Repo) -> Result<Status> {
         println!("{}", "Links".green());
         for l in links {
             println!(
-                "  {} ({}) ({})",
+                "  {} ({})\n    -> {} ({})",
                 l.link.link_id.as_str().yellow(),
-                l.link.project_dir.display().to_string().blue(),
-                l.link.meta_id.as_simple().to_string().yellow()
+                l.link_path.display().to_string().blue(),
+                l.link.meta_id.as_simple().to_string().yellow(),
+                l.link.project_dir.display().to_string().bright_magenta(),
             );
         }
     }
