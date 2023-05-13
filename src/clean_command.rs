@@ -3,7 +3,7 @@ use crate::manifest::ManifestEx;
 use crate::repo::Repo;
 use crate::status::Status;
 use anyhow::Result;
-use log::error;
+use log::{error, info};
 use std::collections::HashMap;
 use std::fs::{remove_dir_all, remove_file};
 use std::io::{stdin, stdout, Write};
@@ -17,7 +17,7 @@ struct ManifestStatus {
 #[derive(Debug)]
 struct LinkStatus {
     link: LinkEx,
-    is_orphaned: bool,
+    is_valid: bool,
 }
 
 pub fn do_clean(repo: &Repo) -> Result<Status> {
@@ -43,30 +43,34 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
                 l.link.link_id.clone(),
                 LinkStatus {
                     link: l,
-                    is_orphaned: false,
+                    is_valid: true,
                 },
             )
         })
         .collect::<HashMap<_, _>>();
 
     for l in link_map.values_mut() {
-        match manifest_map.get_mut(&l.link.link.meta_id) {
-            Some(m) => m.is_referenced = true,
-            None => l.is_orphaned = true,
+        if l.link.link.project_dir.is_dir() {
+            match manifest_map.get_mut(&l.link.link.meta_id) {
+                Some(m) => m.is_referenced = true,
+                None => l.is_valid = false,
+            }
+        } else {
+            l.is_valid = false
         }
     }
 
-    let orphaned_links = link_map
+    let invalid_links = link_map
         .values()
-        .filter(|x| x.is_orphaned)
+        .filter(|x| !x.is_valid)
         .collect::<Vec<_>>();
-    let n = orphaned_links.len();
-    if n > 0 {
+    let invalid_link_count = invalid_links.len();
+    if invalid_link_count > 0 {
         println!(
-            "The following {} links are orphaned and will be removed:",
-            n
+            "The following {} links are invalid and will be removed:",
+            invalid_link_count
         );
-        for (idx, l) in orphaned_links.iter().enumerate() {
+        for (idx, l) in invalid_links.iter().enumerate() {
             println!("({}) {:#?}", idx + 1, l.link);
         }
     }
@@ -75,15 +79,20 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
         .values()
         .filter(|x| !x.is_referenced)
         .collect::<Vec<_>>();
-    let n = unreferenced_manifests.len();
-    if n > 0 {
+    let unreferenced_manifest_count = unreferenced_manifests.len();
+    if unreferenced_manifest_count > 0 {
         println!(
             "The following {} metadirectories are unreferenced and will be removed:",
-            n
+            unreferenced_manifest_count
         );
         for (idx, m) in unreferenced_manifests.iter().enumerate() {
             println!("({}) {:#?}", idx + 1, m.manifest);
         }
+    }
+
+    if invalid_link_count + unreferenced_manifest_count == 0 {
+        info!("No clean-up required");
+        return Ok(Status::Success);
     }
 
     print!("Type DELETE to delete them: ");
@@ -98,7 +107,7 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
         return Ok(Status::Failure);
     }
 
-    for l in orphaned_links {
+    for l in invalid_links {
         remove_file(&l.link.link_path)?
     }
 
