@@ -27,9 +27,7 @@ impl RepoConfig {
 
     pub fn repo(self) -> Result<Option<Repo>> {
         Repo::new(if self.config_path.is_file() {
-            let other = read_yaml_file::<RepoConfig, _>(&self.config_path)?;
-            println!("other={:#?}", other);
-            other
+            read_yaml_file::<RepoConfig, _>(&self.config_path)?
         } else {
             safe_write_file(&self.config_path, serde_yaml::to_string(&self)?, false)?;
             self
