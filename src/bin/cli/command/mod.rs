@@ -1,3 +1,4 @@
+mod info;
 mod init;
 mod link;
 mod list;
@@ -6,6 +7,7 @@ mod remove;
 mod show;
 mod trash;
 
+pub use self::info::do_info;
 pub use self::init::do_init;
 pub use self::link::do_link;
 pub use self::list::do_list;

@@ -20,6 +20,9 @@ pub struct Args {
 
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
+    #[command(name = "info", about = "Show configuration")]
+    Info,
+
     #[command(name = "init", about = "Initialize metadirectory")]
     Init,
 
