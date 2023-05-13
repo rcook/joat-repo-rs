@@ -8,7 +8,10 @@ pub fn do_list(repo: &Repo) -> Result<Status> {
     manifests.sort_by_cached_key(|m| m.manifest.meta_id.clone());
     let manifests = manifests;
     if !manifests.is_empty() {
-        println!("{}", "Metadirectories".green());
+        println!(
+            "{}",
+            format!("Metadirectories ({})", manifests.len()).green()
+        );
         for m in manifests {
             println!(
                 "  {} ({})",
@@ -22,7 +25,7 @@ pub fn do_list(repo: &Repo) -> Result<Status> {
     links.sort_by_cached_key(|l| l.link.project_dir.clone());
     let links = links;
     if !links.is_empty() {
-        println!("{}", "Links".green());
+        println!("{}", format!("Links ({})", links.len()).green());
         for l in links {
             println!(
                 "  {} ({})\n    -> {} ({})",
