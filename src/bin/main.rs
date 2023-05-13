@@ -1,7 +1,8 @@
 mod cli;
 
 use crate::cli::{
-    do_init, do_link, do_list, do_remove, do_show, do_trash, Args, Logger, Status, Subcommand,
+    do_init, do_link, do_list, do_purge, do_remove, do_show, do_trash, Args, Logger, Status,
+    Subcommand,
 };
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -76,6 +77,7 @@ fn run_command(args: &Args, repo: &Repo, project_dir: &Path) -> Result<Status> {
         Subcommand::Init => do_init(repo, project_dir),
         Subcommand::Link { meta_id } => do_link(repo, meta_id, project_dir),
         Subcommand::List => do_list(repo),
+        Subcommand::Purge { force } => do_purge(repo, *force),
         Subcommand::Remove => do_remove(repo, project_dir),
         Subcommand::Show => do_show(repo, project_dir),
         Subcommand::Trash { clean } => do_trash(repo, *clean),

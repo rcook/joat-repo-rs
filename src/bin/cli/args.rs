@@ -37,6 +37,16 @@ pub enum Subcommand {
     #[command(name = "ls", about = "Show all metadirectory info")]
     List,
 
+    #[command(name = "purge", about = "Purge repository")]
+    Purge {
+        #[arg(
+            long = "force",
+            default_value = "false",
+            help = "Really purge repository"
+        )]
+        force: bool,
+    },
+
     #[command(name = "rm", about = "Unlink metadirectory")]
     Remove,
 
