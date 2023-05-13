@@ -8,6 +8,10 @@ use std::fs::{remove_dir_all, remove_file};
 
 pub fn do_clean(repo: &Repo, force: bool) -> Result<Status> {
     let trash = Trash::compute(repo)?;
+    if trash.is_empty() {
+        info!("No clean-up required");
+        return Ok(Status::Success);
+    }
 
     let invalid_link_count = trash.invalid_links.len();
     if invalid_link_count > 0 {
@@ -29,11 +33,6 @@ pub fn do_clean(repo: &Repo, force: bool) -> Result<Status> {
         for (idx, m) in trash.unreferenced_manifests.iter().enumerate() {
             println!("({}) {:#?}", idx + 1, m);
         }
-    }
-
-    if invalid_link_count + unreferenced_manifest_count == 0 {
-        info!("No clean-up required");
-        return Ok(Status::Success);
     }
 
     if !force && prompt("Type DELETE to delete them")? != "delete" {

@@ -77,4 +77,8 @@ impl Trash {
             unreferenced_manifests,
         })
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.invalid_links.len() + self.unreferenced_manifests.len() == 0
+    }
 }
