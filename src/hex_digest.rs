@@ -3,7 +3,7 @@ use md5::compute;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::path::Path;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct HexDigest(String);
 
 impl HexDigest {

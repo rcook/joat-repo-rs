@@ -1,21 +1,27 @@
+use crate::link::LinkEx;
 use crate::manifest::ManifestEx;
 use crate::repo::Repo;
 use crate::status::Status;
 use anyhow::Result;
 use log::error;
 use std::collections::HashMap;
-
+use std::fs::{remove_dir_all, remove_file};
 use std::io::{stdin, stdout, Write};
-use uuid::Uuid;
 
 #[derive(Debug)]
 struct ManifestStatus {
     manifest: ManifestEx,
-    is_used: bool,
+    is_referenced: bool,
+}
+
+#[derive(Debug)]
+struct LinkStatus {
+    link: LinkEx,
+    is_orphaned: bool,
 }
 
 pub fn do_clean(repo: &Repo) -> Result<Status> {
-    let mut manifest_status_map = repo
+    let mut manifest_map = repo
         .list_manifests()?
         .into_iter()
         .map(|m| {
@@ -23,33 +29,61 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
                 m.manifest.meta_id,
                 ManifestStatus {
                     manifest: m,
-                    is_used: false,
+                    is_referenced: false,
                 },
             )
         })
-        .collect::<HashMap<Uuid, _>>();
+        .collect::<HashMap<_, _>>();
 
-    for link in repo.list_links()? {
-        match manifest_status_map.get_mut(&link.link.meta_id) {
-            Some(m) => m.is_used = true,
-            None => todo!(),
+    let mut link_map = repo
+        .list_links()?
+        .into_iter()
+        .map(|l| {
+            (
+                l.link.link_id.clone(),
+                LinkStatus {
+                    link: l,
+                    is_orphaned: false,
+                },
+            )
+        })
+        .collect::<HashMap<_, _>>();
+
+    for l in link_map.values_mut() {
+        match manifest_map.get_mut(&l.link.link.meta_id) {
+            Some(m) => m.is_referenced = true,
+            None => l.is_orphaned = true,
         }
     }
 
-    let mut delete_count = 0;
-    for m in manifest_status_map.values() {
-        if !m.is_used {
-            if delete_count == 0 {
-                println!("The following metadirectories are unreferenced:")
-            }
-            delete_count += 1;
-            println!("({}) {:#?}", delete_count, m.manifest);
+    let orphaned_links = link_map
+        .values()
+        .filter(|x| x.is_orphaned)
+        .collect::<Vec<_>>();
+    let n = orphaned_links.len();
+    if n > 0 {
+        println!(
+            "The following {} links are orphaned and will be removed:",
+            n
+        );
+        for (idx, l) in orphaned_links.iter().enumerate() {
+            println!("({}) {:#?}", idx + 1, l.link);
         }
     }
 
-    if delete_count == 0 {
-        println!("Nothing to clean");
-        return Ok(Status::Success);
+    let unreferenced_manifests = manifest_map
+        .values()
+        .filter(|x| !x.is_referenced)
+        .collect::<Vec<_>>();
+    let n = unreferenced_manifests.len();
+    if n > 0 {
+        println!(
+            "The following {} metadirectories are unreferenced and will be removed:",
+            n
+        );
+        for (idx, m) in unreferenced_manifests.iter().enumerate() {
+            println!("({}) {:#?}", idx + 1, m.manifest);
+        }
     }
 
     print!("Type DELETE to delete them: ");
@@ -64,13 +98,13 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
         return Ok(Status::Failure);
     }
 
-    /*
-    for m in manifest_status_map.values() {
-        if !m.is_used {
-            remove_dir_all(&m.manifest.data_dir)?;
-        }
+    for l in orphaned_links {
+        remove_file(&l.link.link_path)?
     }
-    */
+
+    for m in unreferenced_manifests {
+        remove_dir_all(&m.manifest.data_dir)?;
+    }
 
     Ok(Status::Success)
 }

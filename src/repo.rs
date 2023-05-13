@@ -73,6 +73,7 @@ impl Repo {
 
         let manifest = Manifest {
             created_at: Utc::now(),
+            original_project_dir: project_dir.to_path_buf(),
             meta_id,
         };
         safe_write_file(&manifest_path, serde_yaml::to_string(&manifest)?, false)?;

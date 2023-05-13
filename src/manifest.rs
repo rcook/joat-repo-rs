@@ -6,6 +6,7 @@ use uuid::Uuid;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Manifest {
     pub created_at: DateTime<Utc>,
+    pub original_project_dir: PathBuf,
     pub meta_id: Uuid,
 }
 
