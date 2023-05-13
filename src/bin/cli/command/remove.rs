@@ -6,9 +6,9 @@ use std::fs::remove_file;
 use std::path::Path;
 
 pub fn do_remove(repo: &Repo, project_dir: &Path) -> Result<Status> {
-    Ok(match repo.get_metadir(project_dir)? {
-        Some(metadir) => {
-            remove_file(metadir.link.link_path)?;
+    Ok(match repo.get(project_dir)? {
+        Some(dir_info) => {
+            remove_file(dir_info.link.link_path)?;
             Trash::compute(repo)?.empty()?;
             Status::Success
         }

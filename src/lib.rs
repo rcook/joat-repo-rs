@@ -1,8 +1,8 @@
+mod dir_info;
 mod link;
 mod link_id;
 mod manifest;
 mod meta_id;
-mod metadir;
 mod repo;
 mod trash;
 

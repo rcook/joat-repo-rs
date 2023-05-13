@@ -1,8 +1,8 @@
+use crate::dir_info::DirInfo;
 use crate::link::{Link, LinkEx};
 use crate::link_id::LinkId;
 use crate::manifest::{Manifest, ManifestEx};
 use crate::meta_id::MetaId;
-use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use chrono::Utc;
 use fslock::LockFile;
@@ -70,7 +70,7 @@ impl Repo {
         Ok(links)
     }
 
-    pub fn init_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
+    pub fn init(&self, project_dir: &Path) -> Result<Option<DirInfo>> {
         let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if link_path.is_file() {
@@ -96,7 +96,7 @@ impl Repo {
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        Ok(Some(Metadir {
+        Ok(Some(DirInfo {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
@@ -106,7 +106,7 @@ impl Repo {
         }))
     }
 
-    pub fn get_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
+    pub fn get(&self, project_dir: &Path) -> Result<Option<DirInfo>> {
         let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if !link_path.is_file() {
@@ -127,7 +127,7 @@ impl Repo {
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
         let manifest = read_yaml_file::<Manifest, _>(&manifest_path)?;
 
-        Ok(Some(Metadir {
+        Ok(Some(DirInfo {
             manifest: ManifestEx {
                 data_dir,
                 manifest_path,
@@ -175,7 +175,7 @@ impl Repo {
         }
     }
 
-    pub fn link_metadir(&self, meta_id: &MetaId, project_dir: &Path) -> Result<Option<Metadir>> {
+    pub fn link(&self, meta_id: &MetaId, project_dir: &Path) -> Result<Option<DirInfo>> {
         let manifest = self.read_manifest(meta_id)?;
 
         let link_id = LinkId::from_path(project_dir)?;
@@ -192,7 +192,7 @@ impl Repo {
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
-        Ok(Some(Metadir {
+        Ok(Some(DirInfo {
             manifest,
             link: LinkEx { link_path, link },
         }))

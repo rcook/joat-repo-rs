@@ -61,9 +61,9 @@ pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, project_dir: &Path) -> Res
         },
     };
 
-    Ok(match repo.link_metadir(&meta_id, project_dir)? {
-        Some(metadir) => {
-            info!("{:#?}", metadir);
+    Ok(match repo.link(&meta_id, project_dir)? {
+        Some(dir_info) => {
+            info!("{:#?}", dir_info);
             Status::Success
         }
         None => {

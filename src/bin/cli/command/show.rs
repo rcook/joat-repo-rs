@@ -5,9 +5,9 @@ use log::{error, info};
 use std::path::Path;
 
 pub fn do_show(repo: &Repo, project_dir: &Path) -> Result<Status> {
-    Ok(match repo.get_metadir(project_dir)? {
-        Some(metadir) => {
-            info!("{:#?}", metadir);
+    Ok(match repo.get(project_dir)? {
+        Some(dir_info) => {
+            info!("{:#?}", dir_info);
             Status::Success
         }
         None => {
