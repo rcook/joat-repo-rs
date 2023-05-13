@@ -3,34 +3,29 @@ use crate::link::{Link, LinkEx};
 use crate::link_id::LinkId;
 use crate::manifest::{Manifest, ManifestEx};
 use crate::meta_id::MetaId;
+use crate::RepoConfig;
 use anyhow::{bail, Result};
 use chrono::Utc;
 use fslock::LockFile;
 use joatmon::{read_yaml_file, safe_write_file, FileReadError, HasOtherError};
-use std::fs::create_dir_all;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 
 const MANIFEST_FILE_NAME: &str = "manifest.yaml";
-const MANIFESTS_DIR: &str = "manifests";
-const LINKS_DIR: &str = "links";
 
+#[derive(Debug)]
 pub struct Repo {
-    pub dir: PathBuf,
-    manifests_dir: PathBuf,
-    links_dir: PathBuf,
+    config: RepoConfig,
     _lock_file: LockFile,
 }
 
 impl Repo {
-    pub fn new(dir: &Path) -> Result<Option<Self>> {
-        create_dir_all(dir)?;
-        let mut lock_file = LockFile::open(&dir.join(".lock"))?;
+    pub fn new(config: RepoConfig) -> Result<Option<Self>> {
+        safe_write_file(&config.lock_path, vec![], true)?;
+        let mut lock_file = LockFile::open(&config.lock_path)?;
         Ok(if lock_file.try_lock_with_pid()? {
             Some(Self {
-                dir: PathBuf::from(dir),
-                manifests_dir: dir.join(MANIFESTS_DIR),
-                links_dir: dir.join(LINKS_DIR),
+                config,
                 _lock_file: lock_file,
             })
         } else {
@@ -38,26 +33,11 @@ impl Repo {
         })
     }
 
-    pub fn list_manifests(&self) -> Result<Vec<ManifestEx>> {
-        let mut manifests = Vec::new();
-
-        if self.manifests_dir.is_dir() {
-            for entry_opt in read_dir(&self.manifests_dir)? {
-                let entry = entry_opt?;
-                if entry.path().is_dir() {
-                    manifests.push(self.read_manifest_from_datadir(&entry.path())?);
-                }
-            }
-        }
-
-        Ok(manifests)
-    }
-
     pub fn list_links(&self) -> Result<Vec<LinkEx>> {
         let mut links = Vec::new();
 
-        if self.links_dir.is_dir() {
-            for entry_opt in read_dir(&self.links_dir)? {
+        if self.config.links_dir.is_dir() {
+            for entry_opt in read_dir(&self.config.links_dir)? {
                 let entry = entry_opt?;
                 if entry.path().is_file() {
                     if let Some(link) = self.read_link_from_link_path(&entry.path())? {
@@ -68,6 +48,21 @@ impl Repo {
         }
 
         Ok(links)
+    }
+
+    pub fn list_manifests(&self) -> Result<Vec<ManifestEx>> {
+        let mut manifests = Vec::new();
+
+        if self.config.container_dir.is_dir() {
+            for entry_opt in read_dir(&self.config.container_dir)? {
+                let entry = entry_opt?;
+                if entry.path().is_dir() {
+                    manifests.push(self.read_manifest_from_datadir(&entry.path())?);
+                }
+            }
+        }
+
+        Ok(manifests)
     }
 
     pub fn init(&self, project_dir: &Path) -> Result<Option<DirInfo>> {
@@ -198,11 +193,11 @@ impl Repo {
         }))
     }
 
-    fn make_data_dir(&self, meta_id: &MetaId) -> PathBuf {
-        self.manifests_dir.join(format!("{}", meta_id))
+    fn make_link_path(&self, link_id: &LinkId) -> PathBuf {
+        self.config.links_dir.join(format!("{}.yaml", link_id))
     }
 
-    fn make_link_path(&self, link_id: &LinkId) -> PathBuf {
-        self.links_dir.join(format!("{}.yaml", link_id))
+    fn make_data_dir(&self, meta_id: &MetaId) -> PathBuf {
+        self.config.container_dir.join(format!("{}", meta_id))
     }
 }

@@ -6,7 +6,7 @@ use crate::cli::{
 };
 use anyhow::{anyhow, Result};
 use clap::Parser;
-use faf::Repo;
+use faf::{Repo, RepoConfig};
 use log::error;
 use log::{set_logger, set_max_level, LevelFilter};
 use path_absolutize::Absolutize;
@@ -61,7 +61,8 @@ fn run() -> Result<Status> {
     let args = Args::parse();
     let project_dir = current_dir()?;
     let repo_dir = get_repo_dir(&project_dir, &args)?;
-    if let Some(repo) = Repo::new(&repo_dir)? {
+
+    if let Some(repo) = RepoConfig::default(&repo_dir, None).repo()? {
         run_command(&args, &repo, &project_dir)
     } else {
         error!(
