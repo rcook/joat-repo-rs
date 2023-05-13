@@ -4,7 +4,7 @@ use crate::status::Status;
 use anyhow::Result;
 use log::error;
 use std::collections::HashMap;
-use std::fs::remove_dir_all;
+
 use std::io::{stdin, stdout, Write};
 use uuid::Uuid;
 
@@ -64,11 +64,13 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
         return Ok(Status::Failure);
     }
 
+    /*
     for m in manifest_status_map.values() {
         if !m.is_used {
             remove_dir_all(&m.manifest.data_dir)?;
         }
     }
+    */
 
     Ok(Status::Success)
 }
