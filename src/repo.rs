@@ -8,7 +8,7 @@ use anyhow::{bail, Result};
 use chrono::Utc;
 use fslock::LockFile;
 use joatmon::{read_yaml_file, safe_write_file, FileReadError, HasOtherError};
-use std::fs::read_dir;
+use std::fs::{read_dir, remove_dir_all, remove_file};
 use std::path::{Path, PathBuf};
 
 const MANIFEST_FILE_NAME: &str = "manifest.yaml";
@@ -191,6 +191,25 @@ impl Repo {
             manifest,
             link: LinkEx { link_path, link },
         }))
+    }
+
+    pub fn purge(&self) -> Result<()> {
+        if self.config.shared_dir.is_dir() {
+            remove_dir_all(&self.config.shared_dir)?;
+        }
+        if self.config.container_dir.is_dir() {
+            remove_dir_all(&self.config.container_dir)?;
+        }
+        if self.config.links_dir.is_dir() {
+            remove_dir_all(&self.config.links_dir)?;
+        }
+        if self.config.config_path.is_file() {
+            remove_file(&self.config.config_path)?;
+        }
+        if self.config.lock_path.is_file() {
+            remove_file(&self.config.lock_path)?;
+        }
+        Ok(())
     }
 
     fn make_link_path(&self, link_id: &LinkId) -> PathBuf {
