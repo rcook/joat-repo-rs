@@ -27,7 +27,7 @@ impl Trash {
             .into_iter()
             .map(|m| {
                 (
-                    m.manifest.meta_id,
+                    m.manifest.meta_id.clone(),
                     ManifestStatus {
                         manifest: m,
                         is_referenced: false,

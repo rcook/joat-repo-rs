@@ -1,6 +1,7 @@
-use crate::hex_digest::HexDigest;
 use crate::link::{Link, LinkEx};
+use crate::link_id::LinkId;
 use crate::manifest::{Manifest, ManifestEx};
+use crate::meta_id::MetaId;
 use crate::metadir::Metadir;
 use anyhow::{bail, Result};
 use chrono::Utc;
@@ -10,7 +11,6 @@ use log::info;
 use std::fs::create_dir_all;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
-use uuid::Uuid;
 
 const MANIFEST_FILE_NAME: &str = "manifest.yaml";
 const MANIFESTS_DIR: &str = "manifests";
@@ -72,7 +72,7 @@ impl Repo {
     }
 
     pub fn init_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
-        let link_id = HexDigest::from_path(project_dir)?;
+        let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if link_path.is_file() {
             info!(
@@ -83,14 +83,14 @@ impl Repo {
             return Ok(None);
         }
 
-        let meta_id = Uuid::new_v4();
+        let meta_id = MetaId::random();
         let data_dir = self.make_data_dir(&meta_id);
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
 
         let manifest = Manifest {
             created_at: Utc::now(),
             original_project_dir: project_dir.to_path_buf(),
-            meta_id,
+            meta_id: meta_id.clone(),
         };
         safe_write_file(&manifest_path, serde_yaml::to_string(&manifest)?, false)?;
 
@@ -113,7 +113,7 @@ impl Repo {
     }
 
     pub fn get_metadir(&self, project_dir: &Path) -> Result<Option<Metadir>> {
-        let link_id = HexDigest::from_path(project_dir)?;
+        let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if !link_path.is_file() {
             return Ok(None);
@@ -143,7 +143,7 @@ impl Repo {
         }))
     }
 
-    pub fn read_manifest(&self, meta_id: &Uuid) -> Result<ManifestEx> {
+    pub fn read_manifest(&self, meta_id: &MetaId) -> Result<ManifestEx> {
         let manifest_path = self.make_data_dir(meta_id);
         self.read_manifest_from_datadir(&manifest_path)
     }
@@ -159,7 +159,7 @@ impl Repo {
     }
 
     pub fn read_link(&self, project_dir: &Path) -> Result<Option<LinkEx>> {
-        let link_id = HexDigest::from_path(project_dir)?;
+        let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         self.read_link_from_link_path(&link_path)
     }
@@ -181,10 +181,10 @@ impl Repo {
         }
     }
 
-    pub fn link_metadir(&self, meta_id: &Uuid, project_dir: &Path) -> Result<Option<Metadir>> {
+    pub fn link_metadir(&self, meta_id: &MetaId, project_dir: &Path) -> Result<Option<Metadir>> {
         let manifest = self.read_manifest(meta_id)?;
 
-        let link_id = HexDigest::from_path(project_dir)?;
+        let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if link_path.is_file() {
             return Ok(None);
@@ -194,7 +194,7 @@ impl Repo {
             created_at: Utc::now(),
             link_id,
             project_dir: project_dir.to_path_buf(),
-            meta_id: *meta_id,
+            meta_id: meta_id.clone(),
         };
         safe_write_file(&link_path, serde_yaml::to_string(&link)?, false)?;
 
@@ -204,11 +204,11 @@ impl Repo {
         }))
     }
 
-    fn make_data_dir(&self, meta_id: &Uuid) -> PathBuf {
-        self.manifests_dir.join(format!("{}", meta_id.as_simple()))
+    fn make_data_dir(&self, meta_id: &MetaId) -> PathBuf {
+        self.manifests_dir.join(format!("{}", meta_id))
     }
 
-    fn make_link_path(&self, link_id: &HexDigest) -> PathBuf {
-        self.links_dir.join(format!("{}.yaml", link_id.as_str()))
+    fn make_link_path(&self, link_id: &LinkId) -> PathBuf {
+        self.links_dir.join(format!("{}.yaml", link_id))
     }
 }

@@ -1,11 +1,10 @@
 use super::super::{prompt, Status};
 use anyhow::Result;
-use faf::Repo;
+use faf::{MetaId, Repo};
 use log::{error, info};
 use std::path::Path;
-use uuid::Uuid;
 
-fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
+fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
     let manifests = repo.list_manifests()?;
     let manifest_count = manifests.len();
 
@@ -18,7 +17,7 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
         println!(
             "({}): {}: {:#?}",
             idx + 1,
-            manifest.manifest.meta_id.as_simple(),
+            manifest.manifest.meta_id,
             manifest
         )
     }
@@ -41,21 +40,21 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<Uuid>> {
         return Ok(None);
     }
 
-    Ok(Some(manifests[index - 1].manifest.meta_id))
+    Ok(Some(manifests[index - 1].manifest.meta_id.clone()))
 }
 
-pub fn do_link(repo: &Repo, meta_id: &Option<Uuid>, project_dir: &Path) -> Result<Status> {
+pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, project_dir: &Path) -> Result<Status> {
     if let Some(link) = repo.read_link(project_dir)? {
         error!(
             "Link {} already exists for directory {}",
-            link.link.link_id.as_str(),
+            link.link.link_id,
             project_dir.display()
         );
         return Ok(Status::Failure);
     }
 
-    let meta_id = match *meta_id {
-        Some(value) => value,
+    let meta_id = match meta_id {
+        Some(value) => value.clone(),
         None => match prompt_for_meta_id(repo)? {
             Some(value) => value,
             None => return Ok(Status::Failure),

@@ -72,10 +72,10 @@ fn run() -> Result<Status> {
 }
 
 fn run_command(args: &Args, repo: &Repo, project_dir: &Path) -> Result<Status> {
-    match args.subcommand {
-        Subcommand::Clean { force } => do_clean(repo, force),
+    match &args.subcommand {
+        Subcommand::Clean { force } => do_clean(repo, *force),
         Subcommand::Init => do_init(repo, project_dir),
-        Subcommand::Link { meta_id } => do_link(repo, &meta_id, project_dir),
+        Subcommand::Link { meta_id } => do_link(repo, meta_id, project_dir),
         Subcommand::List => do_list(repo),
         Subcommand::Remove => do_remove(repo, project_dir),
         Subcommand::Show => do_show(repo, project_dir),

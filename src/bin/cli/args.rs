@@ -1,7 +1,8 @@
+use anyhow::Result;
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
+use faf::MetaId;
 use std::path::PathBuf;
-use uuid::Uuid;
 
 #[derive(Debug, Parser)]
 pub struct Args {
@@ -35,8 +36,13 @@ pub enum Subcommand {
 
     #[command(name = "ln", about = "Create link to existing metadirectory")]
     Link {
-        #[arg(long = "ref", short = 'r', help = "Existing metadirectory ID")]
-        meta_id: Option<Uuid>,
+        #[arg(
+            long = "ref",
+            short = 'r',
+            help = "Existing metadirectory ID",
+            value_parser = parse_meta_id
+        )]
+        meta_id: Option<MetaId>,
     },
 
     #[command(name = "ls", about = "Show all metadirectory info")]
@@ -47,4 +53,8 @@ pub enum Subcommand {
 
     #[command(name = "show", about = "Show metadirectory info")]
     Show,
+}
+
+fn parse_meta_id(s: &str) -> Result<MetaId> {
+    MetaId::parse(s)
 }
