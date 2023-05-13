@@ -7,7 +7,6 @@ use anyhow::{bail, Result};
 use chrono::Utc;
 use fslock::LockFile;
 use joatmon::{read_yaml_file, safe_write_file, FileReadError, HasOtherError};
-use log::info;
 use std::fs::create_dir_all;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
@@ -75,11 +74,6 @@ impl Repo {
         let link_id = LinkId::from_path(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         if link_path.is_file() {
-            info!(
-                "link file {} already exists for directory {}",
-                link_path.display(),
-                project_dir.display()
-            );
             return Ok(None);
         }
 
