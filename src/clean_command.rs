@@ -2,11 +2,11 @@ use crate::link::LinkEx;
 use crate::manifest::ManifestEx;
 use crate::repo::Repo;
 use crate::status::Status;
+use crate::util::prompt;
 use anyhow::Result;
 use log::{error, info};
 use std::collections::HashMap;
 use std::fs::{remove_dir_all, remove_file};
-use std::io::{stdin, stdout, Write};
 
 #[derive(Debug)]
 struct ManifestStatus {
@@ -20,7 +20,7 @@ struct LinkStatus {
     is_valid: bool,
 }
 
-pub fn do_clean(repo: &Repo) -> Result<Status> {
+pub fn do_clean(repo: &Repo, force: bool) -> Result<Status> {
     let mut manifest_map = repo
         .list_manifests()?
         .into_iter()
@@ -95,14 +95,7 @@ pub fn do_clean(repo: &Repo) -> Result<Status> {
         return Ok(Status::Success);
     }
 
-    print!("Type DELETE to delete them: ");
-    stdout().flush()?;
-
-    let mut line = String::new();
-    stdin().read_line(&mut line)?;
-
-    let line = line.trim().to_lowercase();
-    if line != "delete" {
+    if !force && prompt("Type DELETE to delete them")? != "delete" {
         error!("Aborting clean-up");
         return Ok(Status::Failure);
     }

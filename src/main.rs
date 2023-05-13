@@ -12,6 +12,7 @@ mod remove_command;
 mod repo;
 mod show_command;
 mod status;
+mod util;
 
 use crate::args::{Args, Subcommand};
 use crate::clean_command::do_clean;
@@ -76,7 +77,7 @@ fn run() -> Result<Status> {
     let repo_dir = get_repo_dir(&project_dir, &args)?;
     let repo = Repo::new(&repo_dir);
     match args.subcommand {
-        Subcommand::Clean => do_clean(&repo),
+        Subcommand::Clean { force } => do_clean(&repo, force),
         Subcommand::Init => do_init(&repo, &project_dir),
         Subcommand::Link { meta_id } => do_link(&repo, &meta_id, &project_dir),
         Subcommand::List => do_list(&repo),

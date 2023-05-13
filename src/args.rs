@@ -20,7 +20,15 @@ pub struct Args {
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
     #[command(name = "clean", about = "Clean unreferenced metadirectories")]
-    Clean,
+    Clean {
+        #[arg(
+            long = "force",
+            short = 'f',
+            default_value = "false",
+            help = "Do not prompt before cleaning up"
+        )]
+        force: bool,
+    },
 
     #[command(name = "init", about = "Initialize metadirectory")]
     Init,
