@@ -12,6 +12,7 @@ mod remove_command;
 mod repo;
 mod show_command;
 mod status;
+mod trash;
 mod util;
 
 use crate::args::{Args, Subcommand};
