@@ -32,17 +32,21 @@ use std::env::{current_dir, set_var, var, VarError};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
-const RUST_BACKTRACE_ENV_NAME: &str = "RUST_BACKTRACE";
-
 static LOGGER: Logger = Logger;
 
+#[cfg(debug_assertions)]
 fn init_backtrace() {
+    const RUST_BACKTRACE_ENV_NAME: &str = "RUST_BACKTRACE";
+
     if let Err(VarError::NotPresent) = var(RUST_BACKTRACE_ENV_NAME) {
         set_var(RUST_BACKTRACE_ENV_NAME, "1")
     }
 
     color_backtrace::install();
 }
+
+#[cfg(not(debug_assertions))]
+fn init_backtrace() {}
 
 fn init_logger() -> Result<()> {
     set_logger(&LOGGER).map_err(|e| anyhow!(e))?;
