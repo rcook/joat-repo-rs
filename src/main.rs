@@ -66,12 +66,11 @@ fn run() -> Result<Status> {
     let repo_dir = get_repo_dir(&project_dir, &args)?;
     let repo = Repo::new(&repo_dir);
     match args.subcommand {
-        Some(Subcommand::Clean) => do_clean(&repo),
-        Some(Subcommand::Init) => do_init(&repo, &project_dir),
-        Some(Subcommand::Link { meta_id }) => do_link(&repo, &meta_id, &project_dir),
-        Some(Subcommand::List) => do_list(&repo),
-        Some(Subcommand::Remove) => do_remove(&repo, &project_dir),
-        Some(Subcommand::Show) => do_show(&repo, &project_dir),
-        None => do_show(&repo, &project_dir),
+        Subcommand::Clean => do_clean(&repo),
+        Subcommand::Init => do_init(&repo, &project_dir),
+        Subcommand::Link { meta_id } => do_link(&repo, &meta_id, &project_dir),
+        Subcommand::List => do_list(&repo),
+        Subcommand::Remove => do_remove(&repo, &project_dir),
+        Subcommand::Show => do_show(&repo, &project_dir),
     }
 }

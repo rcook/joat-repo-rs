@@ -14,7 +14,7 @@ pub struct Args {
     pub repo_dir: Option<PathBuf>,
 
     #[command(subcommand)]
-    pub subcommand: Option<Subcommand>,
+    pub subcommand: Subcommand,
 }
 
 #[derive(ClapSubcommand, Debug)]
