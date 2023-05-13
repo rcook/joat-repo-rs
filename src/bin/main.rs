@@ -1,32 +1,11 @@
-mod args;
-mod clean_command;
-mod hex_digest;
-mod init_command;
-mod link;
-mod link_command;
-mod list_command;
-mod logger;
-mod manifest;
-mod metadir;
-mod remove_command;
-mod repo;
-mod show_command;
-mod status;
-mod trash;
-mod util;
+mod cli;
 
-use crate::args::{Args, Subcommand};
-use crate::clean_command::do_clean;
-use crate::init_command::do_init;
-use crate::link_command::do_link;
-use crate::list_command::do_list;
-use crate::logger::Logger;
-use crate::remove_command::do_remove;
-use crate::repo::Repo;
-use crate::show_command::do_show;
-use crate::status::Status;
+use crate::cli::{
+    do_clean, do_init, do_link, do_list, do_remove, do_show, Args, Logger, Status, Subcommand,
+};
 use anyhow::{anyhow, Result};
 use clap::Parser;
+use faf::Repo;
 use log::error;
 use log::{set_logger, set_max_level, LevelFilter};
 use path_absolutize::Absolutize;

@@ -1,7 +1,7 @@
-use crate::repo::Repo;
-use crate::status::Status;
+use super::super::Status;
 use anyhow::Result;
 use colored::Colorize;
+use faf::Repo;
 
 pub fn do_list(repo: &Repo) -> Result<Status> {
     let mut manifests = repo.list_manifests()?;

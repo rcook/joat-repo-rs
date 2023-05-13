@@ -1,8 +1,6 @@
-use crate::repo::Repo;
-use crate::status::Status;
-use crate::trash::Trash;
-use crate::util::prompt;
+use super::super::{prompt, Status};
 use anyhow::Result;
+use faf::{Repo, Trash};
 use log::{error, info};
 use std::fs::{remove_dir_all, remove_file};
 

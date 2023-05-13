@@ -1,7 +1,6 @@
-use crate::repo::Repo;
-use crate::status::Status;
-use crate::util::prompt;
+use super::super::{prompt, Status};
 use anyhow::Result;
+use faf::Repo;
 use log::{error, info};
 use std::path::Path;
 use uuid::Uuid;
