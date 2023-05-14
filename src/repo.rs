@@ -20,12 +20,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use crate::dir_info::DirInfo;
+use crate::error::RepoError;
 use crate::link::{Link, LinkEx};
 use crate::link_id::LinkId;
 use crate::manifest::{Manifest, ManifestEx};
 use crate::meta_id::MetaId;
-use crate::repo_error::RepoError;
-use crate::repo_result::RepoResult;
+use crate::result::RepoResult;
 use crate::shared_path::SharedPath;
 use crate::RepoConfig;
 use chrono::Utc;

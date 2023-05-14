@@ -19,6 +19,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use crate::repo_error::RepoError;
+use crate::error::RepoError;
 
 pub type RepoResult<T> = std::result::Result<T, RepoError>;

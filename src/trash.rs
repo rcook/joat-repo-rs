@@ -19,11 +19,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use crate::error::RepoError;
 use crate::link::LinkEx;
 use crate::manifest::ManifestEx;
 use crate::repo::Repo;
-use crate::repo_error::RepoError;
-use crate::repo_result::RepoResult;
+use crate::result::RepoResult;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::fs::{remove_dir_all, remove_file};

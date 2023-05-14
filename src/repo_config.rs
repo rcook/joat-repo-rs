@@ -19,9 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use crate::error::RepoError;
 use crate::repo::Repo;
-use crate::repo_error::RepoError;
-use crate::repo_result::RepoResult;
+use crate::result::RepoResult;
 use joatmon::{read_yaml_file, safe_write_file};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
