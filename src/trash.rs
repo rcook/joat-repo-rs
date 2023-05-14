@@ -22,8 +22,10 @@
 use crate::link::LinkEx;
 use crate::manifest::ManifestEx;
 use crate::repo::Repo;
-use anyhow::Result;
+use crate::repo_error::RepoError;
+use crate::repo_result::RepoResult;
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::fs::{remove_dir_all, remove_file};
 
 #[derive(Debug)]
@@ -43,7 +45,7 @@ struct LinkStatus {
 }
 
 impl Trash {
-    pub fn compute(repo: &Repo) -> Result<Self> {
+    pub fn compute(repo: &Repo) -> RepoResult<Self> {
         let mut manifest_map = repo
             .list_manifests()?
             .into_iter()
@@ -104,13 +106,15 @@ impl Trash {
         self.invalid_links.len() + self.unreferenced_manifests.len() == 0
     }
 
-    pub fn empty(&mut self) -> Result<()> {
+    pub fn empty(&mut self) -> RepoResult<()> {
         for l in self.invalid_links.drain(..) {
-            remove_file(&l.link_path)?
+            remove_file(&l.link_path)
+                .map_err(|_e| RepoError::could_not_delete_file(&l.link_path))?;
         }
 
         for m in self.unreferenced_manifests.drain(..) {
-            remove_dir_all(&m.data_dir)?;
+            remove_dir_all(&m.data_dir)
+                .map_err(|_e| RepoError::could_not_delete_directory(&m.data_dir))?;
         }
 
         Ok(())

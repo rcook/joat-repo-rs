@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use clap::Subcommand as ClapSubcommand;
 use joat_repo::{MetaId, SharedPath};
@@ -100,7 +100,7 @@ pub enum Subcommand {
 }
 
 fn parse_meta_id(s: &str) -> Result<MetaId> {
-    MetaId::parse(s)
+    MetaId::parse(s).ok_or(anyhow!("cannot parse meta ID"))
 }
 
 fn parse_shared_path(s: &str) -> Result<SharedPath> {

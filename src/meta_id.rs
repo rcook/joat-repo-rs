@@ -19,17 +19,17 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use anyhow::Result;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::Display;
+use std::result::Result as StdResult;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct MetaId(Uuid);
 
 impl MetaId {
-    pub fn parse(s: &str) -> Result<Self> {
-        Ok(Self(Uuid::parse_str(s)?))
+    pub fn parse(s: &str) -> Option<Self> {
+        Some(Self(Uuid::parse_str(s).ok()?))
     }
 
     pub fn random() -> Self {
@@ -44,7 +44,7 @@ impl Display for MetaId {
 }
 
 impl Serialize for MetaId {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -53,7 +53,7 @@ impl Serialize for MetaId {
 }
 
 impl<'de> Deserialize<'de> for MetaId {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> StdResult<Self, D::Error>
     where
         D: Deserializer<'de>,
     {

@@ -19,9 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use anyhow::{anyhow, Result};
 use md5::compute;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::result::Result as StdResult;
 use std::{fmt::Display, path::Path};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -32,12 +32,12 @@ impl LinkId {
         Self(String::from(s))
     }
 
-    pub fn from_path(project_dir: &Path) -> Result<Self> {
+    pub fn from_path(project_dir: &Path) -> Option<Self> {
         assert!(project_dir.is_absolute());
-        let project_dir_str = project_dir.to_str().ok_or(anyhow!("cannot convert path"))?;
+        let project_dir_str = project_dir.to_str()?;
         let digest = compute(project_dir_str);
         let hex_digest = format!("{:x}", digest);
-        Ok(Self(hex_digest))
+        Some(Self(hex_digest))
     }
 }
 
@@ -48,7 +48,7 @@ impl Display for LinkId {
 }
 
 impl Serialize for LinkId {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -57,7 +57,7 @@ impl Serialize for LinkId {
 }
 
 impl<'de> Deserialize<'de> for LinkId {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> StdResult<Self, D::Error>
     where
         D: Deserializer<'de>,
     {

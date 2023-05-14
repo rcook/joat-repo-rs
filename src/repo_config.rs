@@ -20,7 +20,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use crate::repo::Repo;
-use anyhow::Result;
+use crate::repo_error::RepoError;
+use crate::repo_result::RepoResult;
 use joatmon::{read_yaml_file, safe_write_file};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -46,11 +47,12 @@ impl RepoConfig {
         }
     }
 
-    pub fn repo(self) -> Result<Option<Repo>> {
+    pub fn repo(self) -> RepoResult<Option<Repo>> {
         Repo::new(if self.config_path.is_file() {
-            read_yaml_file::<RepoConfig, _>(&self.config_path)?
+            read_yaml_file::<RepoConfig, _>(&self.config_path).map_err(RepoError::other)?
         } else {
-            safe_write_file(&self.config_path, serde_yaml::to_string(&self)?, false)?;
+            let yaml_str = serde_yaml::to_string(&self).map_err(RepoError::other)?;
+            safe_write_file(&self.config_path, yaml_str, false).map_err(RepoError::other)?;
             self
         })
     }
