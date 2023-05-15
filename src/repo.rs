@@ -63,6 +63,10 @@ impl Repo {
         )
     }
 
+    pub fn config(&self) -> &RepoConfig {
+        &self.config
+    }
+
     pub fn list_links(&self) -> RepoResult<Vec<LinkEx>> {
         let mut links = Vec::new();
 

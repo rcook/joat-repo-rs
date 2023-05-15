@@ -21,9 +21,23 @@
 //
 use super::super::Status;
 use anyhow::Result;
+use colored::Colorize;
 use joat_repo::Repo;
+use std::path::Path;
 
 pub fn do_info(repo: &Repo) -> Result<Status> {
-    println!("{:#?}", repo);
+    show_path("Lock file          ", &repo.config().lock_path);
+    show_path("Configuration file ", &repo.config().config_path);
+    show_path("Links directory    ", &repo.config().links_dir);
+    show_path("Container directory", &repo.config().container_dir);
+    show_path("Shared directory   ", &repo.config().shared_dir);
     Ok(Status::Success)
+}
+
+fn show_path(label: &str, path: &Path) {
+    println!(
+        "{}: {}",
+        label.green(),
+        format!("{}", path.display()).yellow()
+    );
 }
