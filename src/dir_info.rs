@@ -19,53 +19,53 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use crate::link::LinkEx;
+use crate::link::Link;
 use crate::link_id::LinkId;
-use crate::manifest::ManifestEx;
+use crate::manifest::Manifest;
 use crate::meta_id::MetaId;
 use chrono::{DateTime, Utc};
 use std::path::Path;
 
 #[derive(Debug)]
 pub struct DirInfo {
-    pub(crate) manifest: ManifestEx,
-    pub(crate) link: LinkEx,
+    pub(crate) manifest: Manifest,
+    pub(crate) link: Link,
 }
 
 impl DirInfo {
     pub fn data_dir(&self) -> &Path {
-        &self.manifest.data_dir
+        self.manifest.data_dir()
     }
 
     pub fn manifest_path(&self) -> &Path {
-        &self.manifest.manifest_path
+        self.manifest.manifest_path()
     }
 
     pub fn created_at(&self) -> &DateTime<Utc> {
-        &self.manifest.manifest.created_at
+        self.manifest.created_at()
     }
 
     pub fn original_project_dir(&self) -> &Path {
-        &self.manifest.manifest.original_project_dir
+        self.manifest.original_project_dir()
     }
 
     pub fn meta_id(&self) -> &MetaId {
-        &self.manifest.manifest.meta_id
+        self.manifest.meta_id()
     }
 
     pub fn link_path(&self) -> &Path {
-        &self.link.link_path
+        self.link.link_path()
     }
 
     pub fn link_created_at(&self) -> &DateTime<Utc> {
-        &self.link.link.created_at
+        self.link.created_at()
     }
 
     pub fn link_id(&self) -> &LinkId {
-        &self.link.link.link_id
+        self.link.link_id()
     }
 
     pub fn project_dir(&self) -> &Path {
-        &self.link.link.project_dir
+        self.link.project_dir()
     }
 }

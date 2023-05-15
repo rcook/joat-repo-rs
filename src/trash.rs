@@ -20,8 +20,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use crate::error::RepoError;
-use crate::link::LinkEx;
-use crate::manifest::ManifestEx;
+use crate::link::Link;
+use crate::manifest::Manifest;
 use crate::repo::Repo;
 use crate::result::RepoResult;
 use std::collections::HashMap;
@@ -30,17 +30,17 @@ use std::fs::{remove_dir_all, remove_file};
 
 #[derive(Debug)]
 pub struct Trash {
-    pub unreferenced_manifests: Vec<ManifestEx>,
-    pub invalid_links: Vec<LinkEx>,
+    pub unreferenced_manifests: Vec<Manifest>,
+    pub invalid_links: Vec<Link>,
 }
 
 struct ManifestStatus {
-    manifest: ManifestEx,
+    manifest: Manifest,
     is_referenced: bool,
 }
 
 struct LinkStatus {
-    link: LinkEx,
+    link: Link,
     is_valid: bool,
 }
 
@@ -51,7 +51,7 @@ impl Trash {
             .into_iter()
             .map(|m| {
                 (
-                    m.manifest.meta_id.clone(),
+                    m.meta_id().clone(),
                     ManifestStatus {
                         manifest: m,
                         is_referenced: false,
@@ -65,7 +65,7 @@ impl Trash {
             .into_iter()
             .map(|l| {
                 (
-                    l.link.link_id.clone(),
+                    l.link_id().clone(),
                     LinkStatus {
                         link: l,
                         is_valid: true,
@@ -75,8 +75,8 @@ impl Trash {
             .collect::<HashMap<_, _>>();
 
         for l in link_map.values_mut() {
-            if l.link.link.project_dir.is_dir() {
-                match manifest_map.get_mut(&l.link.link.meta_id) {
+            if l.link.project_dir().is_dir() {
+                match manifest_map.get_mut(l.link.meta_id()) {
                     Some(m) => m.is_referenced = true,
                     None => l.is_valid = false,
                 }
@@ -108,13 +108,13 @@ impl Trash {
 
     pub fn empty(&mut self) -> RepoResult<()> {
         for l in self.invalid_links.drain(..) {
-            remove_file(&l.link_path)
-                .map_err(|_e| RepoError::could_not_delete_file(&l.link_path))?;
+            remove_file(l.link_path())
+                .map_err(|_e| RepoError::could_not_delete_file(l.link_path()))?;
         }
 
         for m in self.unreferenced_manifests.drain(..) {
-            remove_dir_all(&m.data_dir)
-                .map_err(|_e| RepoError::could_not_delete_directory(&m.data_dir))?;
+            remove_dir_all(m.data_dir())
+                .map_err(|_e| RepoError::could_not_delete_directory(m.data_dir()))?;
         }
 
         Ok(())

@@ -21,7 +21,7 @@
 //
 use anyhow::Result;
 use colored::Colorize;
-use joat_repo::DirInfo;
+use joat_repo::{DirInfo, Manifest};
 use std::fmt::Display;
 use std::io::{stdin, stdout, Write};
 
@@ -39,26 +39,31 @@ pub fn print<T>(label: &str, value: T)
 where
     T: Display,
 {
-    println!("{}: {}", label.green(), format!("{}", value).yellow());
+    println!("{:30}: {}", label.green(), format!("{}", value).yellow());
 }
 
 pub fn print_data_dir(dir_info: &DirInfo) {
-    print("Data directory            ", dir_info.data_dir().display());
-    print(
-        "Manifest path             ",
-        dir_info.manifest_path().display(),
-    );
-    print("Data directory created at ", dir_info.created_at());
+    print("Data directory", dir_info.data_dir().display());
+    print("Manifest path", dir_info.manifest_path().display());
+    print("Data directory created at", dir_info.created_at());
     print(
         "Original project directory",
         dir_info.original_project_dir().display(),
     );
-    print("Meta ID                   ", dir_info.meta_id());
-    print("Link path                 ", dir_info.link_path().display());
-    print("Link created at           ", dir_info.link_created_at());
-    print("Link ID                   ", dir_info.link_id());
+    print("Meta ID", dir_info.meta_id());
+    print("Link path", dir_info.link_path().display());
+    print("Link created at", dir_info.link_created_at());
+    print("Link ID", dir_info.link_id());
+    print("Project directory", dir_info.project_dir().display());
+}
+
+pub fn print_manifest(manifest: &Manifest) {
+    print("Data directory", manifest.data_dir().display());
+    print("Manifest path", manifest.manifest_path().display());
+    print("Created at", manifest.created_at());
     print(
-        "Project directory         ",
-        dir_info.project_dir().display(),
+        "Original project directory",
+        manifest.original_project_dir().display(),
     );
+    print("Meta ID", manifest.meta_id());
 }

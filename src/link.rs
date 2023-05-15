@@ -23,18 +23,44 @@ use crate::link_id::LinkId;
 use crate::meta_id::MetaId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Link {
-    pub created_at: DateTime<Utc>,
-    pub link_id: LinkId,
-    pub project_dir: PathBuf,
-    pub meta_id: MetaId,
+pub(crate) struct LinkRecord {
+    pub(crate) created_at: DateTime<Utc>,
+    pub(crate) link_id: LinkId,
+    pub(crate) project_dir: PathBuf,
+    pub(crate) meta_id: MetaId,
 }
 
 #[derive(Debug)]
-pub struct LinkEx {
-    pub link_path: PathBuf,
-    pub link: Link,
+pub struct Link {
+    link_path: PathBuf,
+    record: LinkRecord,
+}
+
+impl Link {
+    pub(crate) fn new(link_path: PathBuf, record: LinkRecord) -> Self {
+        Self { link_path, record }
+    }
+
+    pub fn link_path(&self) -> &Path {
+        &self.link_path
+    }
+
+    pub fn created_at(&self) -> &DateTime<Utc> {
+        &self.record.created_at
+    }
+
+    pub fn link_id(&self) -> &LinkId {
+        &self.record.link_id
+    }
+
+    pub fn project_dir(&self) -> &Path {
+        &self.record.project_dir
+    }
+
+    pub fn meta_id(&self) -> &MetaId {
+        &self.record.meta_id
+    }
 }

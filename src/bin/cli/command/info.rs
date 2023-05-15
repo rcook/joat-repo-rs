@@ -25,10 +25,10 @@ use anyhow::Result;
 use joat_repo::Repo;
 
 pub fn do_info(repo: &Repo) -> Result<Status> {
-    print("Lock file          ", &repo.lock_path().display());
-    print("Configuration file ", &repo.config_path().display());
-    print("Links directory    ", &repo.links_dir().display());
+    print("Lock file", &repo.lock_path().display());
+    print("Configuration file", &repo.config_path().display());
+    print("Links directory", &repo.links_dir().display());
     print("Container directory", &repo.container_dir().display());
-    print("Shared directory   ", &repo.shared_dir().display());
+    print("Shared directory", &repo.shared_dir().display());
     Ok(Status::Success)
 }

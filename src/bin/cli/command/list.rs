@@ -26,34 +26,34 @@ use joat_repo::Repo;
 
 pub fn do_list(repo: &Repo) -> Result<Status> {
     let mut manifests = repo.list_manifests()?;
-    manifests.sort_by_cached_key(|m| m.manifest.meta_id.clone());
+    manifests.sort_by_cached_key(|m| m.meta_id().clone());
     let manifests = manifests;
     if !manifests.is_empty() {
         println!(
             "{}",
             format!("Metadirectories ({})", manifests.len()).green()
         );
-        for m in manifests {
+        for manifest in manifests {
             println!(
                 "  {} ({})",
-                m.manifest.meta_id.to_string().yellow(),
-                m.data_dir.display().to_string().blue()
+                manifest.meta_id().to_string().yellow(),
+                manifest.data_dir().display().to_string().blue()
             );
         }
     }
 
     let mut links = repo.list_links()?;
-    links.sort_by_cached_key(|l| l.link.project_dir.clone());
+    links.sort_by_cached_key(|l| l.project_dir().to_path_buf());
     let links = links;
     if !links.is_empty() {
         println!("{}", format!("Links ({})", links.len()).green());
-        for l in links {
+        for link in links {
             println!(
                 "  {} ({})\n    -> {} ({})",
-                l.link.link_id.to_string().yellow(),
-                l.link_path.display().to_string().blue(),
-                l.link.meta_id.to_string().yellow(),
-                l.link.project_dir.display().to_string().bright_magenta(),
+                link.link_id().to_string().yellow(),
+                link.link_path().display().to_string().blue(),
+                link.meta_id().to_string().yellow(),
+                link.project_dir().display().to_string().bright_magenta(),
             );
         }
     }

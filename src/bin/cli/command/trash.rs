@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use super::super::util::print_manifest;
 use super::super::Status;
 use anyhow::Result;
 use joat_repo::{Repo, Trash};
@@ -49,8 +50,9 @@ pub fn do_trash(repo: &Repo, clean: bool) -> Result<Status> {
             "The following {} metadirectories are unreferenced and will be removed:",
             unreferenced_manifest_count
         );
-        for (idx, m) in trash.unreferenced_manifests.iter().enumerate() {
-            println!("({}) {:#?}", idx + 1, m);
+        for (idx, manifest) in trash.unreferenced_manifests.iter().enumerate() {
+            println!("({})", idx + 1);
+            print_manifest(manifest);
         }
     }
 

@@ -23,7 +23,7 @@ use super::super::util::print_data_dir;
 use super::super::{prompt, Status};
 use anyhow::Result;
 use joat_repo::{MetaId, Repo};
-use log::{error, info};
+use log::error;
 use std::path::Path;
 
 fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
@@ -36,12 +36,7 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
     }
 
     for (idx, manifest) in manifests.iter().enumerate() {
-        println!(
-            "({}): {}: {:#?}",
-            idx + 1,
-            manifest.manifest.meta_id,
-            manifest
-        )
+        println!("({}): {}: {:#?}", idx + 1, manifest.meta_id(), manifest)
     }
 
     let line = if manifest_count > 1 {
@@ -62,14 +57,14 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
         return Ok(None);
     }
 
-    Ok(Some(manifests[index - 1].manifest.meta_id.clone()))
+    Ok(Some(manifests[index - 1].meta_id().clone()))
 }
 
 pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, project_dir: &Path) -> Result<Status> {
     if let Some(link) = repo.read_link(project_dir)? {
         error!(
             "Link {} already exists for directory {}",
-            link.link.link_id,
+            link.link_id(),
             project_dir.display()
         );
         return Ok(Status::Failure);

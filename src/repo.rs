@@ -22,9 +22,9 @@
 use crate::config::RepoConfig;
 use crate::dir_info::DirInfo;
 use crate::error::RepoError;
-use crate::link::{Link, LinkEx};
+use crate::link::{Link, LinkRecord};
 use crate::link_id::LinkId;
-use crate::manifest::{Manifest, ManifestEx};
+use crate::manifest::{Manifest, ManifestRecord};
 use crate::meta_id::MetaId;
 use crate::result::RepoResult;
 use crate::shared_path::SharedPath;
@@ -84,7 +84,7 @@ impl Repo {
         &self.config.shared_dir
     }
 
-    pub fn list_links(&self) -> RepoResult<Vec<LinkEx>> {
+    pub fn list_links(&self) -> RepoResult<Vec<Link>> {
         let mut links = Vec::new();
 
         if self.config.links_dir.is_dir() {
@@ -101,7 +101,7 @@ impl Repo {
         Ok(links)
     }
 
-    pub fn list_manifests(&self) -> RepoResult<Vec<ManifestEx>> {
+    pub fn list_manifests(&self) -> RepoResult<Vec<Manifest>> {
         let mut manifests = Vec::new();
 
         if self.config.container_dir.is_dir() {
@@ -127,36 +127,32 @@ impl Repo {
         let data_dir = self.make_data_dir(&meta_id);
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
 
-        let manifest = Manifest {
+        let manifest_record = ManifestRecord {
             created_at: Utc::now(),
             original_project_dir: project_dir.to_path_buf(),
             meta_id: meta_id.clone(),
         };
-        let yaml_str = serde_yaml::to_string(&manifest).map_err(RepoError::other)?;
+        let yaml_str = serde_yaml::to_string(&manifest_record).map_err(RepoError::other)?;
         safe_write_file(&manifest_path, yaml_str, false).map_err(RepoError::other)?;
 
-        let link = Link {
+        let link_record = LinkRecord {
             created_at: Utc::now(),
             link_id,
             project_dir: project_dir.to_path_buf(),
             meta_id,
         };
-        let yaml_str = serde_yaml::to_string(&link).map_err(RepoError::other)?;
+        let yaml_str = serde_yaml::to_string(&link_record).map_err(RepoError::other)?;
         safe_write_file(&link_path, yaml_str, false).map_err(RepoError::other)?;
 
         Ok(Some(DirInfo {
-            manifest: ManifestEx {
-                data_dir,
-                manifest_path,
-                manifest,
-            },
-            link: LinkEx { link_path, link },
+            manifest: Manifest::new(data_dir, manifest_path, manifest_record),
+            link: Link::new(link_path, link_record),
         }))
     }
 
     pub fn remove(&self, project_dir: &Path) -> RepoResult<bool> {
         Ok(if let Some(dir_info) = self.get(project_dir)? {
-            remove_file(dir_info.link.link_path)
+            remove_file(dir_info.link_path())
                 .map_err(|_e| RepoError::could_not_delete_file(&self.config.config_path))?;
             Trash::compute(self)?.empty()?;
             true
@@ -172,56 +168,46 @@ impl Repo {
             return Ok(None);
         }
 
-        let link = read_yaml_file::<Link, _>(&link_path).map_err(RepoError::other)?;
-        if link.project_dir != *project_dir {
+        let link_record = read_yaml_file::<LinkRecord, _>(&link_path).map_err(RepoError::other)?;
+        if link_record.project_dir != *project_dir {
             return Err(RepoError::invalid_link_file(
                 &link_path,
-                &link.project_dir,
+                &link_record.project_dir,
                 project_dir,
             ));
         }
 
-        let data_dir = self.make_data_dir(&link.meta_id);
+        let data_dir = self.make_data_dir(&link_record.meta_id);
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
-        let manifest = read_yaml_file::<Manifest, _>(&manifest_path).map_err(RepoError::other)?;
+        let manifest_record =
+            read_yaml_file::<ManifestRecord, _>(&manifest_path).map_err(RepoError::other)?;
 
         Ok(Some(DirInfo {
-            manifest: ManifestEx {
-                data_dir,
-                manifest_path,
-                manifest,
-            },
-            link: LinkEx { link_path, link },
+            manifest: Manifest::new(data_dir, manifest_path, manifest_record),
+            link: Link::new(link_path, link_record),
         }))
     }
 
-    pub fn read_manifest(&self, meta_id: &MetaId) -> RepoResult<ManifestEx> {
+    pub fn read_manifest(&self, meta_id: &MetaId) -> RepoResult<Manifest> {
         let manifest_path = self.make_data_dir(meta_id);
         self.read_manifest_from_datadir(&manifest_path)
     }
 
-    pub fn read_manifest_from_datadir(&self, data_dir: &Path) -> RepoResult<ManifestEx> {
+    pub fn read_manifest_from_datadir(&self, data_dir: &Path) -> RepoResult<Manifest> {
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
-        let manifest = read_yaml_file(&manifest_path).map_err(RepoError::other)?;
-        Ok(ManifestEx {
-            data_dir: data_dir.to_path_buf(),
-            manifest_path,
-            manifest,
-        })
+        let record = read_yaml_file(&manifest_path).map_err(RepoError::other)?;
+        Ok(Manifest::new(data_dir.to_path_buf(), manifest_path, record))
     }
 
-    pub fn read_link(&self, project_dir: &Path) -> RepoResult<Option<LinkEx>> {
+    pub fn read_link(&self, project_dir: &Path) -> RepoResult<Option<Link>> {
         let link_id = Self::make_link_id(project_dir)?;
         let link_path = self.make_link_path(&link_id);
         self.read_link_from_link_path(&link_path)
     }
 
-    pub fn read_link_from_link_path(&self, link_path: &Path) -> RepoResult<Option<LinkEx>> {
+    pub fn read_link_from_link_path(&self, link_path: &Path) -> RepoResult<Option<Link>> {
         match read_yaml_file(link_path) {
-            Ok(link) => Ok(Some(LinkEx {
-                link_path: link_path.to_path_buf(),
-                link,
-            })),
+            Ok(link_record) => Ok(Some(Link::new(link_path.to_path_buf(), link_record))),
             Err(e)
                 if e.downcast_other_ref::<FileReadError>()
                     .map(FileReadError::is_not_found)
@@ -242,18 +228,18 @@ impl Repo {
             return Ok(None);
         }
 
-        let link = Link {
+        let link_record = LinkRecord {
             created_at: Utc::now(),
             link_id,
             project_dir: project_dir.to_path_buf(),
             meta_id: meta_id.clone(),
         };
-        let yaml_str = serde_yaml::to_string(&link).map_err(RepoError::other)?;
+        let yaml_str = serde_yaml::to_string(&link_record).map_err(RepoError::other)?;
         safe_write_file(&link_path, yaml_str, false).map_err(RepoError::other)?;
 
         Ok(Some(DirInfo {
             manifest,
-            link: LinkEx { link_path, link },
+            link: Link::new(link_path, link_record),
         }))
     }
 

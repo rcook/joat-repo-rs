@@ -22,18 +22,48 @@
 use crate::meta_id::MetaId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Manifest {
-    pub created_at: DateTime<Utc>,
-    pub original_project_dir: PathBuf,
-    pub meta_id: MetaId,
+pub(crate) struct ManifestRecord {
+    pub(crate) created_at: DateTime<Utc>,
+    pub(crate) original_project_dir: PathBuf,
+    pub(crate) meta_id: MetaId,
 }
 
 #[derive(Clone, Debug)]
-pub struct ManifestEx {
-    pub data_dir: PathBuf,
-    pub manifest_path: PathBuf,
-    pub manifest: Manifest,
+pub struct Manifest {
+    data_dir: PathBuf,
+    manifest_path: PathBuf,
+    record: ManifestRecord,
+}
+
+impl Manifest {
+    pub(crate) fn new(data_dir: PathBuf, manifest_path: PathBuf, record: ManifestRecord) -> Self {
+        Self {
+            data_dir,
+            manifest_path,
+            record,
+        }
+    }
+
+    pub fn data_dir(&self) -> &Path {
+        &self.data_dir
+    }
+
+    pub fn manifest_path(&self) -> &Path {
+        &self.manifest_path
+    }
+
+    pub fn created_at(&self) -> &DateTime<Utc> {
+        &self.record.created_at
+    }
+
+    pub fn original_project_dir(&self) -> &Path {
+        &self.record.original_project_dir
+    }
+
+    pub fn meta_id(&self) -> &MetaId {
+        &self.record.meta_id
+    }
 }

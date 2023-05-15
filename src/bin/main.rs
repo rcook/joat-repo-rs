@@ -62,7 +62,7 @@ fn get_repo_dir(project_dir: &Path, args: &Args) -> Result<PathBuf> {
         Some(repo_dir) => repo_dir.absolutize_from(project_dir)?.to_path_buf(),
         _ => {
             let mut repo_dir = home::home_dir().ok_or(anyhow!("cannot get home directory"))?;
-            repo_dir.push(".joat-repo-test");
+            repo_dir.push(".joat-repo-example-bin");
             repo_dir
         }
     })
