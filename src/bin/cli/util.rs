@@ -20,6 +20,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 use anyhow::Result;
+use colored::Colorize;
+use std::fmt::Display;
 use std::io::{stdin, stdout, Write};
 
 pub fn prompt(message: &str) -> Result<String> {
@@ -30,4 +32,11 @@ pub fn prompt(message: &str) -> Result<String> {
     stdin().read_line(&mut line)?;
 
     Ok(line.trim().to_lowercase())
+}
+
+pub fn print<T>(label: &str, value: T)
+where
+    T: Display,
+{
+    println!("{}: {}", label.green(), format!("{}", value).yellow());
 }

@@ -19,25 +19,16 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use super::super::util::print;
 use super::super::Status;
 use anyhow::Result;
-use colored::Colorize;
 use joat_repo::Repo;
-use std::path::Path;
 
 pub fn do_info(repo: &Repo) -> Result<Status> {
-    show_path("Lock file          ", &repo.lock_path());
-    show_path("Configuration file ", &repo.config_path());
-    show_path("Links directory    ", &repo.links_dir());
-    show_path("Container directory", &repo.container_dir());
-    show_path("Shared directory   ", &repo.shared_dir());
+    print("Lock file          ", &repo.lock_path().display());
+    print("Configuration file ", &repo.config_path().display());
+    print("Links directory    ", &repo.links_dir().display());
+    print("Container directory", &repo.container_dir().display());
+    print("Shared directory   ", &repo.shared_dir().display());
     Ok(Status::Success)
-}
-
-fn show_path(label: &str, path: &Path) {
-    println!(
-        "{}: {}",
-        label.green(),
-        format!("{}", path.display()).yellow()
-    );
 }

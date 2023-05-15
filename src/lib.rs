@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+mod config;
 mod dir_info;
 mod error;
 mod link;
@@ -26,16 +27,15 @@ mod link_id;
 mod manifest;
 mod meta_id;
 mod repo;
-mod repo_config;
 mod result;
 mod shared_path;
 mod trash;
 
+pub use self::config::RepoConfig;
 pub use self::error::{RepoError, RepoErrorKind};
 pub use self::link_id::LinkId;
 pub use self::meta_id::MetaId;
 pub use self::repo::Repo;
-pub use self::repo_config::RepoConfig;
 pub use self::result::RepoResult;
 pub use self::shared_path::SharedPath;
 pub use self::trash::Trash;

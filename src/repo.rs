@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use crate::config::RepoConfig;
 use crate::dir_info::DirInfo;
 use crate::error::RepoError;
 use crate::link::{Link, LinkEx};
@@ -27,7 +28,7 @@ use crate::manifest::{Manifest, ManifestEx};
 use crate::meta_id::MetaId;
 use crate::result::RepoResult;
 use crate::shared_path::SharedPath;
-use crate::RepoConfig;
+use crate::trash::Trash;
 use chrono::Utc;
 use fslock::LockFile;
 use joatmon::{read_text_file, read_yaml_file, safe_write_file, FileReadError, HasOtherError};
@@ -151,6 +152,17 @@ impl Repo {
             },
             link: LinkEx { link_path, link },
         }))
+    }
+
+    pub fn remove(&self, project_dir: &Path) -> RepoResult<bool> {
+        Ok(if let Some(dir_info) = self.get(project_dir)? {
+            remove_file(dir_info.link.link_path)
+                .map_err(|_e| RepoError::could_not_delete_file(&self.config.config_path))?;
+            Trash::compute(self)?.empty()?;
+            true
+        } else {
+            false
+        })
     }
 
     pub fn get(&self, project_dir: &Path) -> RepoResult<Option<DirInfo>> {
