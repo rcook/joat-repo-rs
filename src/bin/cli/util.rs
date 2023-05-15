@@ -21,6 +21,7 @@
 //
 use anyhow::Result;
 use colored::Colorize;
+use joat_repo::DirInfo;
 use std::fmt::Display;
 use std::io::{stdin, stdout, Write};
 
@@ -39,4 +40,25 @@ where
     T: Display,
 {
     println!("{}: {}", label.green(), format!("{}", value).yellow());
+}
+
+pub fn print_data_dir(dir_info: &DirInfo) {
+    print("Data directory            ", dir_info.data_dir().display());
+    print(
+        "Manifest path             ",
+        dir_info.manifest_path().display(),
+    );
+    print("Data directory created at ", dir_info.created_at());
+    print(
+        "Original project directory",
+        dir_info.original_project_dir().display(),
+    );
+    print("Meta ID                   ", dir_info.meta_id());
+    print("Link path                 ", dir_info.link_path().display());
+    print("Link created at           ", dir_info.link_created_at());
+    print("Link ID                   ", dir_info.link_id());
+    print(
+        "Project directory         ",
+        dir_info.project_dir().display(),
+    );
 }

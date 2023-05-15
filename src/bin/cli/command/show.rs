@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::super::util::print;
+use super::super::util::print_data_dir;
 use super::super::Status;
 use anyhow::Result;
 use joat_repo::Repo;
@@ -29,24 +29,7 @@ use std::path::Path;
 pub fn do_show(repo: &Repo, project_dir: &Path) -> Result<Status> {
     Ok(match repo.get(project_dir)? {
         Some(dir_info) => {
-            print("Data directory            ", dir_info.data_dir().display());
-            print(
-                "Manifest path             ",
-                dir_info.manifest_path().display(),
-            );
-            print("Data directory created at ", dir_info.created_at());
-            print(
-                "Original project directory",
-                dir_info.original_project_dir().display(),
-            );
-            print("Meta ID                   ", dir_info.meta_id());
-            print("Link path                 ", dir_info.link_path().display());
-            print("Link created at           ", dir_info.link_created_at());
-            print("Link ID                   ", dir_info.link_id());
-            print(
-                "Project directory         ",
-                dir_info.project_dir().display(),
-            );
+            print_data_dir(&dir_info);
             Status::Success
         }
         None => {

@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use super::super::util::print_data_dir;
 use super::super::Status;
 use anyhow::Result;
 use joat_repo::Repo;
@@ -27,7 +28,7 @@ use std::path::Path;
 
 pub fn do_init(repo: &Repo, project_dir: &Path) -> Result<Status> {
     Ok(if let Some(dir_info) = repo.init(project_dir)? {
-        println!("{:#?}", dir_info);
+        print_data_dir(&dir_info);
         Status::Success
     } else {
         error!(
