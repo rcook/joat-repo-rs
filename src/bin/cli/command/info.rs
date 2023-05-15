@@ -26,11 +26,11 @@ use joat_repo::Repo;
 use std::path::Path;
 
 pub fn do_info(repo: &Repo) -> Result<Status> {
-    show_path("Lock file          ", &repo.config().lock_path);
-    show_path("Configuration file ", &repo.config().config_path);
-    show_path("Links directory    ", &repo.config().links_dir);
-    show_path("Container directory", &repo.config().container_dir);
-    show_path("Shared directory   ", &repo.config().shared_dir);
+    show_path("Lock file          ", &repo.lock_path());
+    show_path("Configuration file ", &repo.config_path());
+    show_path("Links directory    ", &repo.links_dir());
+    show_path("Container directory", &repo.container_dir());
+    show_path("Shared directory   ", &repo.shared_dir());
     Ok(Status::Success)
 }
 

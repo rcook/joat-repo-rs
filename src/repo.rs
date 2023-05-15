@@ -63,8 +63,24 @@ impl Repo {
         )
     }
 
-    pub fn config(&self) -> &RepoConfig {
-        &self.config
+    pub fn lock_path(&self) -> &Path {
+        &self.config.lock_path
+    }
+
+    pub fn config_path(&self) -> &Path {
+        &self.config.config_path
+    }
+
+    pub fn links_dir(&self) -> &Path {
+        &self.config.links_dir
+    }
+
+    pub fn container_dir(&self) -> &Path {
+        &self.config.container_dir
+    }
+
+    pub fn shared_dir(&self) -> &Path {
+        &self.config.shared_dir
     }
 
     pub fn list_links(&self) -> RepoResult<Vec<LinkEx>> {
