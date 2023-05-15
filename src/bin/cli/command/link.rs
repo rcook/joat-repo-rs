@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use super::super::util::print_data_dir;
 use super::super::{prompt, Status};
 use anyhow::Result;
 use joat_repo::{MetaId, Repo};
@@ -84,7 +85,7 @@ pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, project_dir: &Path) -> Res
 
     Ok(match repo.link(&meta_id, project_dir)? {
         Some(dir_info) => {
-            info!("{:#?}", dir_info);
+            print_data_dir(&dir_info);
             Status::Success
         }
         None => {
