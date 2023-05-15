@@ -21,7 +21,7 @@
 //
 use anyhow::Result;
 use colored::Colorize;
-use joat_repo::{DirInfo, Manifest};
+use joat_repo::{DirInfo, Link, Manifest};
 use std::fmt::Display;
 use std::io::{stdin, stdout, Write};
 
@@ -66,4 +66,12 @@ pub fn print_manifest(manifest: &Manifest) {
         manifest.original_project_dir().display(),
     );
     print("Meta ID", manifest.meta_id());
+}
+
+pub fn print_link(link: &Link) {
+    print("Link path", link.link_path().display());
+    print("Created at", link.created_at());
+    print("Link ID", link.link_id());
+    print("Project directory", link.project_dir().display());
+    print("Meta ID", link.meta_id());
 }

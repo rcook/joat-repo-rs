@@ -36,7 +36,12 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
     }
 
     for (idx, manifest) in manifests.iter().enumerate() {
-        println!("({}): {}: {:#?}", idx + 1, manifest.meta_id(), manifest)
+        println!(
+            "({}): {}: {}",
+            idx + 1,
+            manifest.meta_id(),
+            manifest.original_project_dir().display()
+        )
     }
 
     let line = if manifest_count > 1 {

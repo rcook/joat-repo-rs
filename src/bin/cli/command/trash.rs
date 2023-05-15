@@ -19,7 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-use super::super::util::print_manifest;
+use super::super::util::{print_link, print_manifest};
 use super::super::Status;
 use anyhow::Result;
 use joat_repo::{Repo, Trash};
@@ -39,8 +39,9 @@ pub fn do_trash(repo: &Repo, clean: bool) -> Result<Status> {
             "The following {} links are invalid and will be removed:",
             invalid_link_count
         );
-        for (idx, l) in trash.invalid_links.iter().enumerate() {
-            println!("({}) {:#?}", idx + 1, l);
+        for (idx, link) in trash.invalid_links.iter().enumerate() {
+            println!("({})", idx + 1);
+            print_link(link)
         }
     }
 
