@@ -22,8 +22,8 @@
 mod cli;
 
 use crate::cli::{
-    do_info, do_init, do_link, do_list, do_purge, do_read, do_remove, do_show, do_trash, do_write,
-    Args, Logger, Status, Subcommand,
+    do_find, do_info, do_init, do_link, do_list, do_purge, do_read, do_remove, do_show, do_trash,
+    do_write, Args, Logger, Status, Subcommand,
 };
 use anyhow::{anyhow, Result};
 use clap::Parser;
@@ -57,9 +57,9 @@ fn init_logger() -> Result<()> {
     Ok(())
 }
 
-fn get_repo_dir(project_dir: &Path, args: &Args) -> Result<PathBuf> {
+fn get_repo_dir(cwd: &Path, args: &Args) -> Result<PathBuf> {
     Ok(match &args.repo_dir {
-        Some(repo_dir) => repo_dir.absolutize_from(project_dir)?.to_path_buf(),
+        Some(repo_dir) => repo_dir.absolutize_from(cwd)?.to_path_buf(),
         _ => {
             let mut repo_dir = home::home_dir().ok_or(anyhow!("cannot get home directory"))?;
             repo_dir.push(".joat-repo-example-bin");
@@ -80,11 +80,11 @@ fn main() -> Result<()> {
 
 fn run() -> Result<Status> {
     let args = Args::parse();
-    let project_dir = current_dir()?;
-    let repo_dir = get_repo_dir(&project_dir, &args)?;
+    let cwd = current_dir()?;
+    let repo_dir = get_repo_dir(&cwd, &args)?;
 
     if let Some(repo) = RepoConfig::default(&repo_dir, None).repo()? {
-        run_command(&args, &repo, &project_dir)
+        run_command(&args, &repo, &cwd)
     } else {
         error!(
             "Repository at {} is currently in use by another program or lock file is invalid",
@@ -94,16 +94,17 @@ fn run() -> Result<Status> {
     }
 }
 
-fn run_command(args: &Args, repo: &Repo, project_dir: &Path) -> Result<Status> {
+fn run_command(args: &Args, repo: &Repo, cwd: &Path) -> Result<Status> {
     match &args.subcommand {
+        Subcommand::Find => do_find(repo, cwd),
         Subcommand::Info => do_info(repo),
-        Subcommand::Init => do_init(repo, project_dir),
-        Subcommand::Link { meta_id } => do_link(repo, meta_id, project_dir),
+        Subcommand::Init => do_init(repo, cwd),
+        Subcommand::Link { meta_id } => do_link(repo, meta_id, cwd),
         Subcommand::List => do_list(repo),
         Subcommand::Purge { force } => do_purge(repo, *force),
         Subcommand::Read { path } => do_read(repo, path),
-        Subcommand::Remove => do_remove(repo, project_dir),
-        Subcommand::Show => do_show(repo, project_dir),
+        Subcommand::Remove => do_remove(repo, cwd),
+        Subcommand::Show => do_show(repo, cwd),
         Subcommand::Trash { clean } => do_trash(repo, *clean),
         Subcommand::Write { path, value } => do_write(repo, path, value),
     }

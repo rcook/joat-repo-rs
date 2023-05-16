@@ -19,17 +19,46 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use super::super::util::print_data_dir;
 use super::super::Status;
 use anyhow::Result;
-use joat_repo::Repo;
+use joat_repo::{Link, Repo};
 use log::error;
+use std::collections::HashMap;
 use std::path::Path;
 
-pub fn do_remove(repo: &Repo, cwd: &Path) -> Result<Status> {
-    Ok(if repo.remove(cwd)? {
-        Status::Success
-    } else {
-        error!("No metadirectory found for directory {}", cwd.display());
-        Status::Failure
-    })
+fn find_link(repo: &Repo, dir: &Path) -> Result<Option<Link>> {
+    let mut map = repo
+        .list_links()?
+        .into_iter()
+        .map(|x| (x.project_dir().to_path_buf(), x))
+        .collect::<HashMap<_, _>>();
+
+    let mut d = dir;
+    loop {
+        if let Some(link) = map.remove(d) {
+            return Ok(Some(link));
+        }
+
+        if let Some(p) = d.parent() {
+            d = p;
+        } else {
+            return Ok(None);
+        }
+    }
+}
+
+pub fn do_find(repo: &Repo, cwd: &Path) -> Result<Status> {
+    let Some(link) = find_link(repo, cwd)? else {
+        error!("Could not find link for directory {}", cwd.display());
+        return Ok(Status::Failure)
+    };
+
+    let Some(dir_info) = repo.get(link.project_dir())? else {
+        error!("Could not find metadirectory info for directory {}", link.project_dir().display());
+        return Ok(Status::Failure)
+    };
+
+    print_data_dir(&dir_info);
+    Ok(Status::Success)
 }

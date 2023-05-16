@@ -41,6 +41,9 @@ pub struct Args {
 
 #[derive(ClapSubcommand, Debug)]
 pub enum Subcommand {
+    #[command(name = "find", about = "Find parent metadirectory")]
+    Find,
+
     #[command(name = "info", about = "Show configuration")]
     Info,
 

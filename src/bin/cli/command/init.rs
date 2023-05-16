@@ -26,15 +26,12 @@ use joat_repo::Repo;
 use log::error;
 use std::path::Path;
 
-pub fn do_init(repo: &Repo, project_dir: &Path) -> Result<Status> {
-    Ok(if let Some(dir_info) = repo.init(project_dir)? {
+pub fn do_init(repo: &Repo, cwd: &Path) -> Result<Status> {
+    Ok(if let Some(dir_info) = repo.init(cwd)? {
         print_data_dir(&dir_info);
         Status::Success
     } else {
-        error!(
-            "Directory {} is already in repository",
-            project_dir.display()
-        );
+        error!("Directory {} is already in repository", cwd.display());
         Status::Failure
     })
 }

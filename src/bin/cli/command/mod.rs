@@ -19,6 +19,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+mod find;
 mod info;
 mod init;
 mod link;
@@ -30,6 +31,7 @@ mod show;
 mod trash;
 mod write;
 
+pub use self::find::do_find;
 pub use self::info::do_info;
 pub use self::init::do_init;
 pub use self::link::do_link;

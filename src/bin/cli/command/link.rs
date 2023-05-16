@@ -65,12 +65,12 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
     Ok(Some(manifests[index - 1].meta_id().clone()))
 }
 
-pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, project_dir: &Path) -> Result<Status> {
-    if let Some(link) = repo.read_link(project_dir)? {
+pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, cwd: &Path) -> Result<Status> {
+    if let Some(link) = repo.read_link(cwd)? {
         error!(
             "Link {} already exists for directory {}",
             link.link_id(),
-            project_dir.display()
+            cwd.display()
         );
         return Ok(Status::Failure);
     }
@@ -83,16 +83,13 @@ pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, project_dir: &Path) -> Res
         },
     };
 
-    Ok(match repo.link(&meta_id, project_dir)? {
+    Ok(match repo.link(&meta_id, cwd)? {
         Some(dir_info) => {
             print_data_dir(&dir_info);
             Status::Success
         }
         None => {
-            error!(
-                "Could not create link for directory {}",
-                project_dir.display()
-            );
+            error!("Could not create link for directory {}", cwd.display());
             Status::Failure
         }
     })
