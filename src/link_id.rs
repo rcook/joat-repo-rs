@@ -89,10 +89,20 @@ mod tests {
     use rstest::rstest;
     use std::path::{Path, PathBuf};
 
-    #[rstest]
-    #[case(PathBuf::from("/absolute"))]
-    fn from_path_basics(#[case] input: PathBuf) {
-        assert!(LinkId::try_from(&input as &Path).is_ok())
+    #[test]
+    fn from_path_basics() {
+        fn absolute_path() -> PathBuf {
+            #[cfg(target_os = "windows")]
+            {
+                PathBuf::from("C:\\absolute")
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                PathBuf::from("/absolute")
+            }
+        }
+
+        assert!(LinkId::try_from(&absolute_path() as &Path).is_ok())
     }
 
     #[test]
