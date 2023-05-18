@@ -283,7 +283,7 @@ impl Repo {
     }
 
     fn make_link_id(project_dir: &Path) -> RepoResult<LinkId> {
-        LinkId::from_path(project_dir).ok_or(RepoError::could_not_compute_hash(project_dir))
+        LinkId::try_from(project_dir)
     }
 
     fn make_link_path(&self, link_id: &LinkId) -> PathBuf {

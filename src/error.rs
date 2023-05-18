@@ -39,6 +39,8 @@ pub enum RepoErrorKind {
     CouldNotDeleteDirectory,
     CouldNotDeleteFile,
     InvalidLinkFile,
+    InvalidMetaId,
+    InvalidLinkId,
     Other,
 }
 
@@ -64,6 +66,10 @@ enum RepoErrorImpl {
         "Project directory {1} specified in link file {0} does not match expected directory {2}"
     )]
     InvalidLinkFile(PathBuf, PathBuf, PathBuf),
+    #[error("Invalid meta ID {0}")]
+    InvalidMetaId(String),
+    #[error("Invalid link ID {0}")]
+    InvalidLinkId(String),
     #[error(transparent)]
     Other(AnyhowError),
 }
@@ -79,6 +85,8 @@ impl RepoError {
             RepoErrorImpl::CouldNotDeleteDirectory(_) => RepoErrorKind::CouldNotDeleteDirectory,
             RepoErrorImpl::CouldNotDeleteFile(_) => RepoErrorKind::CouldNotDeleteFile,
             RepoErrorImpl::InvalidLinkFile(_, _, _) => RepoErrorKind::InvalidLinkFile,
+            RepoErrorImpl::InvalidMetaId(_) => RepoErrorKind::InvalidMetaId,
+            RepoErrorImpl::InvalidLinkId(_) => RepoErrorKind::InvalidLinkId,
             _ => RepoErrorKind::Other,
         }
     }
@@ -116,6 +124,16 @@ impl RepoError {
     #[allow(unused)]
     pub fn is_invalid_link_file(&self) -> bool {
         self.kind() == RepoErrorKind::InvalidLinkFile
+    }
+
+    #[allow(unused)]
+    pub fn is_invalid_meta_id(&self) -> bool {
+        self.kind() == RepoErrorKind::InvalidMetaId
+    }
+
+    #[allow(unused)]
+    pub fn is_invalid_link_id(&self) -> bool {
+        self.kind() == RepoErrorKind::InvalidLinkId
     }
 
     #[allow(unused)]
@@ -159,6 +177,14 @@ impl RepoError {
             project_dir.to_path_buf(),
             expected_project_dir.to_path_buf(),
         ))
+    }
+
+    pub(crate) fn invalid_meta_id(s: &str) -> Self {
+        Self(RepoErrorImpl::InvalidMetaId(String::from(s)))
+    }
+
+    pub(crate) fn invalid_link_id(s: &str) -> Self {
+        Self(RepoErrorImpl::InvalidLinkId(String::from(s)))
     }
 
     pub(crate) fn other<E>(e: E) -> Self

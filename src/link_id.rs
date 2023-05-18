@@ -19,30 +19,47 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+use crate::error::RepoError;
 use md5::compute;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::path::Path;
 use std::result::Result as StdResult;
-use std::{fmt::Display, path::Path};
+use std::str::FromStr;
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct LinkId(String);
 
-impl LinkId {
-    pub fn new(s: &str) -> Self {
-        Self(String::from(s))
-    }
+impl FromStr for LinkId {
+    type Err = RepoError;
 
-    pub fn from_path(project_dir: &Path) -> Option<Self> {
-        assert!(project_dir.is_absolute());
-        let project_dir_str = project_dir.to_str()?;
-        let digest = compute(project_dir_str);
-        let hex_digest = format!("{:x}", digest);
-        Some(Self(hex_digest))
+    fn from_str(s: &str) -> StdResult<Self, Self::Err> {
+        if !s.is_empty() && s.chars().all(|c| c.is_ascii_hexdigit()) {
+            Ok(Self(s.to_lowercase()))
+        } else {
+            Err(RepoError::invalid_link_id(s))
+        }
+    }
+}
+
+impl TryFrom<&Path> for LinkId {
+    type Error = RepoError;
+
+    fn try_from(value: &Path) -> StdResult<Self, Self::Error> {
+        if !value.is_absolute() {
+            return Err(RepoError::could_not_compute_hash(value));
+        }
+
+        let s = value
+            .to_str()
+            .ok_or_else(|| RepoError::could_not_compute_hash(value))?;
+        let digest = compute(s);
+        format!("{:x}", digest).parse::<Self>()
     }
 }
 
 impl Display for LinkId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         write!(f, "{}", self.0)
     }
 }
@@ -61,6 +78,43 @@ impl<'de> Deserialize<'de> for LinkId {
     where
         D: Deserializer<'de>,
     {
-        Ok(Self::new(&String::deserialize(deserializer)?))
+        Ok(Self(String::deserialize(deserializer)?))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::LinkId;
+    use anyhow::Result;
+    use rstest::rstest;
+    use std::path::{Path, PathBuf};
+
+    #[rstest]
+    #[case(PathBuf::from("/absolute"))]
+    fn from_path_basics(#[case] input: PathBuf) {
+        assert!(LinkId::try_from(&input as &Path).is_ok())
+    }
+
+    #[test]
+    fn from_path_not_absolute_path() {
+        assert!(LinkId::try_from(Path::new("garbage")).is_err());
+    }
+
+    #[rstest]
+    #[case("abcdef")]
+    #[case("ABCDEF")]
+    #[case("123456")]
+    fn parse_basics(#[case] input: &str) -> Result<()> {
+        assert_eq!(input.to_lowercase(), input.parse::<LinkId>()?.to_string());
+        Ok(())
+    }
+
+    #[rstest]
+    #[case("abcdefghijklmnopqrstuvwxyz")]
+    #[case("")]
+    #[case("  ")]
+    #[case("  abcdef  ")]
+    fn parse_errors(#[case] input: &str) {
+        assert!(input.parse::<LinkId>().is_err());
     }
 }
