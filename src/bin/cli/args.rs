@@ -103,7 +103,7 @@ pub enum Subcommand {
 }
 
 fn parse_meta_id(s: &str) -> Result<MetaId> {
-    MetaId::parse(s).ok_or(anyhow!("cannot parse meta ID"))
+    s.parse::<MetaId>().map_err(|e| anyhow!(e))
 }
 
 fn parse_shared_path(s: &str) -> Result<SharedPath> {
