@@ -4,7 +4,7 @@ description = "Metadirectory repositories"
 homepage = "https://github.com/rcook/joat-repo-rs/"
 license = "MIT"
 name = "joat-repo"
-version = "0.0.3"
+version = "0.0.4"
 edition = "2021"
 
 [features]
