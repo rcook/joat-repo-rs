@@ -49,7 +49,7 @@ impl RepoConfig {
 
     pub fn repo(self) -> RepoResult<Option<Repo>> {
         Repo::new(if self.config_path.is_file() {
-            read_yaml_file::<RepoConfig, _>(&self.config_path).map_err(RepoError::other)?
+            read_yaml_file::<RepoConfig>(&self.config_path).map_err(RepoError::other)?
         } else {
             let yaml_str = serde_yaml::to_string(&self).map_err(RepoError::other)?;
             safe_write_file(&self.config_path, yaml_str, false).map_err(RepoError::other)?;

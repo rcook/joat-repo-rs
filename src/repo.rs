@@ -168,7 +168,7 @@ impl Repo {
             return Ok(None);
         }
 
-        let link_record = read_yaml_file::<LinkRecord, _>(&link_path).map_err(RepoError::other)?;
+        let link_record = read_yaml_file::<LinkRecord>(&link_path).map_err(RepoError::other)?;
         if link_record.project_dir != *project_dir {
             return Err(RepoError::invalid_link_file(
                 &link_path,
@@ -180,7 +180,7 @@ impl Repo {
         let data_dir = self.make_data_dir(&link_record.meta_id);
         let manifest_path = data_dir.join(MANIFEST_FILE_NAME);
         let manifest_record =
-            read_yaml_file::<ManifestRecord, _>(&manifest_path).map_err(RepoError::other)?;
+            read_yaml_file::<ManifestRecord>(&manifest_path).map_err(RepoError::other)?;
 
         Ok(Some(DirInfo {
             manifest: Manifest::new(data_dir, manifest_path, manifest_record),
@@ -269,7 +269,7 @@ impl Repo {
 
     pub fn read_shared_file(&self, path: &SharedPath) -> RepoResult<Option<String>> {
         let p = self.resolve_shared_path(path)?;
-        Ok(match read_text_file(p) {
+        Ok(match read_text_file(&p) {
             Ok(s) => Some(s),
             Err(e) if e.is_not_found() => None,
             Err(e) => return Err(RepoError::other(e)),
@@ -278,7 +278,7 @@ impl Repo {
 
     pub fn write_shared_file(&self, path: &SharedPath, value: &str) -> RepoResult<()> {
         let p = self.resolve_shared_path(path)?;
-        safe_write_file(p, value, true).map_err(RepoError::other)?;
+        safe_write_file(&p, value, true).map_err(RepoError::other)?;
         Ok(())
     }
 
