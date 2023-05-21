@@ -8,7 +8,7 @@ keywords = ["general"]
 license = "MIT"
 name = "joat-repo"
 repository = "https://github.com/rcook/joat-repo-rs"
-version = "0.0.6"
+version = "0.0.7"
 
 [features]
 example-bin = ["clap", "color-backtrace", "colored", "home", "log"]
