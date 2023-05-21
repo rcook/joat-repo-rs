@@ -31,6 +31,7 @@ use crate::RepoError;
 pub struct MetaId(Uuid);
 
 impl MetaId {
+    #[must_use]
     pub fn random() -> Self {
         Self(Uuid::new_v4())
     }
@@ -105,11 +106,11 @@ mod tests {
     #[case("")]
     #[case("garbage")]
     fn parse_error(#[case] input: &str) {
-        assert!(input.parse::<MetaId>().is_err())
+        assert!(input.parse::<MetaId>().is_err());
     }
 
     #[test]
     fn random_basics() {
-        assert!(MetaId::random().to_string().parse::<Uuid>().is_ok())
+        assert!(MetaId::random().to_string().parse::<Uuid>().is_ok());
     }
 }

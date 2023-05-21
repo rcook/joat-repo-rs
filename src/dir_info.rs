@@ -33,38 +33,47 @@ pub struct DirInfo {
 }
 
 impl DirInfo {
+    #[must_use]
     pub fn data_dir(&self) -> &Path {
         self.manifest.data_dir()
     }
 
+    #[must_use]
     pub fn manifest_path(&self) -> &Path {
         self.manifest.manifest_path()
     }
 
-    pub fn created_at(&self) -> &DateTime<Utc> {
+    #[must_use]
+    pub const fn created_at(&self) -> &DateTime<Utc> {
         self.manifest.created_at()
     }
 
+    #[must_use]
     pub fn original_project_dir(&self) -> &Path {
         self.manifest.original_project_dir()
     }
 
-    pub fn meta_id(&self) -> &MetaId {
+    #[must_use]
+    pub const fn meta_id(&self) -> &MetaId {
         self.manifest.meta_id()
     }
 
+    #[must_use]
     pub fn link_path(&self) -> &Path {
         self.link.link_path()
     }
 
-    pub fn link_created_at(&self) -> &DateTime<Utc> {
+    #[must_use]
+    pub const fn link_created_at(&self) -> &DateTime<Utc> {
         self.link.created_at()
     }
 
-    pub fn link_id(&self) -> &LinkId {
+    #[must_use]
+    pub const fn link_id(&self) -> &LinkId {
         self.link.link_id()
     }
 
+    #[must_use]
     pub fn project_dir(&self) -> &Path {
         self.link.project_dir()
     }

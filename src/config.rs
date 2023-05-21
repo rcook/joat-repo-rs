@@ -36,20 +36,21 @@ pub struct RepoConfig {
 }
 
 impl RepoConfig {
+    #[must_use]
     pub fn default(base_dir: &Path, prefix: Option<&str>) -> Self {
-        let full_prefix = prefix.map(|s| format!("{}-", s)).unwrap_or_default();
+        let full_prefix = prefix.map(|s| format!("{s}-")).unwrap_or_default();
         Self {
-            lock_path: base_dir.join(format!(".{}lock", full_prefix)),
-            config_path: base_dir.join(format!("{}config.yaml", full_prefix)),
-            links_dir: base_dir.join(format!("{}links", full_prefix)),
-            container_dir: base_dir.join(format!("{}data", full_prefix)),
-            shared_dir: base_dir.join(format!("{}shared", full_prefix)),
+            lock_path: base_dir.join(format!(".{full_prefix}lock")),
+            config_path: base_dir.join(format!("{full_prefix}config.yaml")),
+            links_dir: base_dir.join(format!("{full_prefix}links")),
+            container_dir: base_dir.join(format!("{full_prefix}data")),
+            shared_dir: base_dir.join(format!("{full_prefix}shared")),
         }
     }
 
     pub fn repo(self) -> RepoResult<Option<Repo>> {
         Repo::new(if self.config_path.is_file() {
-            read_yaml_file::<RepoConfig>(&self.config_path).map_err(RepoError::other)?
+            read_yaml_file::<Self>(&self.config_path).map_err(RepoError::other)?
         } else {
             let yaml_str = serde_yaml::to_string(&self).map_err(RepoError::other)?;
             safe_write_file(&self.config_path, yaml_str, false).map_err(RepoError::other)?;

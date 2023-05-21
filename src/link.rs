@@ -26,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Deserialize, Serialize)]
-pub(crate) struct LinkRecord {
+pub struct LinkRecord {
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) link_id: LinkId,
     pub(crate) project_dir: PathBuf,
@@ -40,27 +40,32 @@ pub struct Link {
 }
 
 impl Link {
-    pub(crate) fn new(link_path: PathBuf, record: LinkRecord) -> Self {
+    pub(crate) const fn new(link_path: PathBuf, record: LinkRecord) -> Self {
         Self { link_path, record }
     }
 
+    #[must_use]
     pub fn link_path(&self) -> &Path {
         &self.link_path
     }
 
-    pub fn created_at(&self) -> &DateTime<Utc> {
+    #[must_use]
+    pub const fn created_at(&self) -> &DateTime<Utc> {
         &self.record.created_at
     }
 
-    pub fn link_id(&self) -> &LinkId {
+    #[must_use]
+    pub const fn link_id(&self) -> &LinkId {
         &self.record.link_id
     }
 
+    #[must_use]
     pub fn project_dir(&self) -> &Path {
         &self.record.project_dir
     }
 
-    pub fn meta_id(&self) -> &MetaId {
+    #[must_use]
+    pub const fn meta_id(&self) -> &MetaId {
         &self.record.meta_id
     }
 }

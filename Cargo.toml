@@ -1,11 +1,14 @@
 [package]
 authors = ["Richard Cook"]
+categories = ["filesystem"]
 description = "Metadirectory repositories"
-homepage = "https://github.com/rcook/joat-repo-rs/"
+edition = "2021"
+homepage = "https://github.com/rcook/joat-repo-rs"
+keywords = ["general"]
 license = "MIT"
 name = "joat-repo"
+repository = "https://github.com/rcook/joat-repo-rs"
 version = "0.0.6"
-edition = "2021"
 
 [features]
 example-bin = ["clap", "color-backtrace", "colored", "home", "log"]

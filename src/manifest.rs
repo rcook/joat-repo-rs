@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub(crate) struct ManifestRecord {
+pub struct ManifestRecord {
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) original_project_dir: PathBuf,
     pub(crate) meta_id: MetaId,
@@ -39,7 +39,11 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    pub(crate) fn new(data_dir: PathBuf, manifest_path: PathBuf, record: ManifestRecord) -> Self {
+    pub(crate) const fn new(
+        data_dir: PathBuf,
+        manifest_path: PathBuf,
+        record: ManifestRecord,
+    ) -> Self {
         Self {
             data_dir,
             manifest_path,
@@ -47,23 +51,28 @@ impl Manifest {
         }
     }
 
+    #[must_use]
     pub fn data_dir(&self) -> &Path {
         &self.data_dir
     }
 
+    #[must_use]
     pub fn manifest_path(&self) -> &Path {
         &self.manifest_path
     }
 
-    pub fn created_at(&self) -> &DateTime<Utc> {
+    #[must_use]
+    pub const fn created_at(&self) -> &DateTime<Utc> {
         &self.record.created_at
     }
 
+    #[must_use]
     pub fn original_project_dir(&self) -> &Path {
         &self.record.original_project_dir
     }
 
-    pub fn meta_id(&self) -> &MetaId {
+    #[must_use]
+    pub const fn meta_id(&self) -> &MetaId {
         &self.record.meta_id
     }
 }

@@ -76,7 +76,8 @@ enum RepoErrorImpl {
 
 impl RepoError {
     #[allow(unused)]
-    pub fn kind(&self) -> RepoErrorKind {
+    #[must_use]
+    pub const fn kind(&self) -> RepoErrorKind {
         match self.0 {
             RepoErrorImpl::CouldNotOpenLockFile(_) => RepoErrorKind::CouldNotOpenLockFile,
             RepoErrorImpl::CouldNotLock(_) => RepoErrorKind::CouldNotLock,
@@ -92,51 +93,61 @@ impl RepoError {
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_could_not_open_lock_file(&self) -> bool {
         self.kind() == RepoErrorKind::CouldNotOpenLockFile
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_could_not_lock(&self) -> bool {
         self.kind() == RepoErrorKind::CouldNotLock
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_invalid_shared_path(&self) -> bool {
         self.kind() == RepoErrorKind::InvalidSharedPath
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_could_not_compute_hash(&self) -> bool {
         self.kind() == RepoErrorKind::CouldNotComputeHash
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_could_not_delete_directory(&self) -> bool {
         self.kind() == RepoErrorKind::CouldNotDeleteDirectory
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_could_not_delete_file(&self) -> bool {
         self.kind() == RepoErrorKind::CouldNotDeleteFile
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_invalid_link_file(&self) -> bool {
         self.kind() == RepoErrorKind::InvalidLinkFile
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_invalid_meta_id(&self) -> bool {
         self.kind() == RepoErrorKind::InvalidMetaId
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_invalid_link_id(&self) -> bool {
         self.kind() == RepoErrorKind::InvalidLinkId
     }
 
     #[allow(unused)]
+    #[must_use]
     pub fn is_other(&self) -> bool {
         self.kind() == RepoErrorKind::Other
     }

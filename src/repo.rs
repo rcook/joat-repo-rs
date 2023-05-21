@@ -64,22 +64,27 @@ impl Repo {
         )
     }
 
+    #[must_use]
     pub fn lock_path(&self) -> &Path {
         &self.config.lock_path
     }
 
+    #[must_use]
     pub fn config_path(&self) -> &Path {
         &self.config.config_path
     }
 
+    #[must_use]
     pub fn links_dir(&self) -> &Path {
         &self.config.links_dir
     }
 
+    #[must_use]
     pub fn container_dir(&self) -> &Path {
         &self.config.container_dir
     }
 
+    #[must_use]
     pub fn shared_dir(&self) -> &Path {
         &self.config.shared_dir
     }
@@ -92,7 +97,7 @@ impl Repo {
                 let entry = entry_opt.map_err(RepoError::other)?;
                 if entry.path().is_file() {
                     if let Some(link) = self.read_link_from_link_path(&entry.path())? {
-                        links.push(link)
+                        links.push(link);
                     }
                 }
             }
@@ -210,8 +215,7 @@ impl Repo {
             Ok(link_record) => Ok(Some(Link::new(link_path.to_path_buf(), link_record))),
             Err(e)
                 if e.downcast_other_ref::<FileReadError>()
-                    .map(FileReadError::is_not_found)
-                    .unwrap_or(false) =>
+                    .map_or(false, FileReadError::is_not_found) =>
             {
                 Ok(None)
             }
@@ -287,11 +291,11 @@ impl Repo {
     }
 
     fn make_link_path(&self, link_id: &LinkId) -> PathBuf {
-        self.config.links_dir.join(format!("{}.yaml", link_id))
+        self.config.links_dir.join(format!("{link_id}.yaml"))
     }
 
     fn make_data_dir(&self, meta_id: &MetaId) -> PathBuf {
-        self.config.container_dir.join(format!("{}", meta_id))
+        self.config.container_dir.join(format!("{meta_id}"))
     }
 
     fn resolve_shared_path(&self, path: &SharedPath) -> RepoResult<PathBuf> {

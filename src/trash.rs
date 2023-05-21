@@ -81,7 +81,7 @@ impl Trash {
                     None => l.is_valid = false,
                 }
             } else {
-                l.is_valid = false
+                l.is_valid = false;
             }
         }
 
@@ -97,11 +97,12 @@ impl Trash {
             .collect::<Vec<_>>();
 
         Ok(Self {
-            invalid_links,
             unreferenced_manifests,
+            invalid_links,
         })
     }
 
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.invalid_links.len() + self.unreferenced_manifests.len() == 0
     }

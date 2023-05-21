@@ -54,7 +54,7 @@ impl TryFrom<&Path> for LinkId {
             .to_str()
             .ok_or_else(|| RepoError::could_not_compute_hash(value))?;
         let digest = compute(s);
-        format!("{:x}", digest).parse::<Self>()
+        format!("{digest:x}").parse::<Self>()
     }
 }
 
@@ -102,7 +102,7 @@ mod tests {
             }
         }
 
-        assert!(LinkId::try_from(&absolute_path() as &Path).is_ok())
+        assert!(LinkId::try_from(&absolute_path() as &Path).is_ok());
     }
 
     #[test]

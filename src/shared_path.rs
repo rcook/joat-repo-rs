@@ -25,10 +25,12 @@ use std::fmt::Display;
 pub struct SharedPath(String);
 
 impl SharedPath {
+    #[must_use]
     pub fn new(s: &str) -> Self {
         Self(String::from(s))
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
