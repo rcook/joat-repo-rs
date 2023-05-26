@@ -42,7 +42,7 @@ impl FromStr for MetaId {
 
     fn from_str(s: &str) -> StdResult<Self, Self::Err> {
         s.parse::<Uuid>()
-            .map_err(|_| RepoError::invalid_meta_id(s))
+            .map_err(|_e| RepoError::invalid_meta_id(s))
             .map(Self)
     }
 }
