@@ -41,11 +41,11 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
             idx + 1,
             manifest.meta_id(),
             manifest.original_project_dir().display()
-        )
+        );
     }
 
     let line = if manifest_count > 1 {
-        prompt(&format!("Enter 1-{} or Q to quit", manifest_count))?
+        prompt(&format!("Enter 1-{manifest_count} or Q to quit"))?
     } else {
         prompt("Enter 1 or Q to quit")?
     };
@@ -53,9 +53,8 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
         return Ok(None);
     }
 
-    let index = match line.parse::<usize>() {
-        Ok(value) => value,
-        _ => return Ok(None),
+    let Ok(index) = line.parse::<usize>() else {
+        return Ok(None)
     };
 
     if index < 1 || index > manifest_count {
@@ -83,14 +82,11 @@ pub fn do_link(repo: &Repo, meta_id: &Option<MetaId>, cwd: &Path) -> Result<Stat
         },
     };
 
-    Ok(match repo.link(&meta_id, cwd)? {
-        Some(dir_info) => {
-            print_data_dir(&dir_info);
-            Status::Success
-        }
-        None => {
-            error!("Could not create link for directory {}", cwd.display());
-            Status::Failure
-        }
+    Ok(if let Some(dir_info) = repo.link(&meta_id, cwd)? {
+        print_data_dir(&dir_info);
+        Status::Success
+    } else {
+        error!("Could not create link for directory {}", cwd.display());
+        Status::Failure
     })
 }

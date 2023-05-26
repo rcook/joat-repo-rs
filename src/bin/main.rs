@@ -19,6 +19,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+#![warn(clippy::all)]
+#![warn(clippy::cargo)]
+//#![warn(clippy::expect_used)]
+#![warn(clippy::nursery)]
+//#![warn(clippy::panic_in_result_fn)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::derive_partial_eq_without_eq)]
+#![allow(clippy::enum_glob_use)]
+#![allow(clippy::match_wildcard_for_single_variants)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::option_if_let_else)]
 mod cli;
 
 use crate::cli::{
@@ -41,8 +53,8 @@ static LOGGER: Logger = Logger;
 fn init_backtrace() {
     const RUST_BACKTRACE_ENV_NAME: &str = "RUST_BACKTRACE";
 
-    if let Err(VarError::NotPresent) = var(RUST_BACKTRACE_ENV_NAME) {
-        set_var(RUST_BACKTRACE_ENV_NAME, "1")
+    if var(RUST_BACKTRACE_ENV_NAME) == Err(VarError::NotPresent) {
+        set_var(RUST_BACKTRACE_ENV_NAME, "1");
     }
 
     color_backtrace::install();
@@ -58,13 +70,12 @@ fn init_logger() -> Result<()> {
 }
 
 fn get_repo_dir(cwd: &Path, args: &Args) -> Result<PathBuf> {
-    Ok(match &args.repo_dir {
-        Some(repo_dir) => repo_dir.absolutize_from(cwd)?.to_path_buf(),
-        _ => {
-            let mut repo_dir = home::home_dir().ok_or(anyhow!("cannot get home directory"))?;
-            repo_dir.push(".joat-repo-example-bin");
-            repo_dir
-        }
+    Ok(if let Some(repo_dir) = &args.repo_dir {
+        repo_dir.absolutize_from(cwd)?.to_path_buf()
+    } else {
+        let mut repo_dir = home::home_dir().ok_or_else(|| anyhow!("cannot get home directory"))?;
+        repo_dir.push(".joat-repo-example-bin");
+        repo_dir
     })
 }
 
@@ -97,7 +108,7 @@ fn run() -> Result<Status> {
 fn run_command(args: &Args, repo: &Repo, cwd: &Path) -> Result<Status> {
     match &args.subcommand {
         Subcommand::Find => do_find(repo, cwd),
-        Subcommand::Info => do_info(repo),
+        Subcommand::Info => Ok(do_info(repo)),
         Subcommand::Init => do_init(repo, cwd),
         Subcommand::Link { meta_id } => do_link(repo, meta_id, cwd),
         Subcommand::List => do_list(repo),

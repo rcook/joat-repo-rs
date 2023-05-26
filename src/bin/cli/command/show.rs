@@ -27,17 +27,14 @@ use log::error;
 use std::path::Path;
 
 pub fn do_show(repo: &Repo, project_dir: &Path) -> Result<Status> {
-    Ok(match repo.get(project_dir)? {
-        Some(dir_info) => {
-            print_data_dir(&dir_info);
-            Status::Success
-        }
-        None => {
-            error!(
-                "No metadirectory found for directory {}",
-                project_dir.display()
-            );
-            Status::Failure
-        }
+    Ok(if let Some(dir_info) = repo.get(project_dir)? {
+        print_data_dir(&dir_info);
+        Status::Success
+    } else {
+        error!(
+            "No metadirectory found for directory {}",
+            project_dir.display()
+        );
+        Status::Failure
     })
 }

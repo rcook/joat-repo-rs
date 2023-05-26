@@ -35,21 +35,17 @@ pub fn do_trash(repo: &Repo, clean: bool) -> Result<Status> {
 
     let invalid_link_count = trash.invalid_links.len();
     if invalid_link_count > 0 {
-        println!(
-            "The following {} links are invalid and will be removed:",
-            invalid_link_count
-        );
+        println!("The following {invalid_link_count} links are invalid and will be removed:");
         for (idx, link) in trash.invalid_links.iter().enumerate() {
             println!("({})", idx + 1);
-            print_link(link)
+            print_link(link);
         }
     }
 
     let unreferenced_manifest_count = trash.unreferenced_manifests.len();
     if unreferenced_manifest_count > 0 {
         println!(
-            "The following {} metadirectories are unreferenced and will be removed:",
-            unreferenced_manifest_count
+            "The following {unreferenced_manifest_count} metadirectories are unreferenced and will be removed:"
         );
         for (idx, manifest) in trash.unreferenced_manifests.iter().enumerate() {
             println!("({})", idx + 1);

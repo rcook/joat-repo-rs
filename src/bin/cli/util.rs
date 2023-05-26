@@ -26,7 +26,7 @@ use std::fmt::Display;
 use std::io::{stdin, stdout, Write};
 
 pub fn prompt(message: &str) -> Result<String> {
-    print!("{}: ", message);
+    print!("{message}: ");
     stdout().flush()?;
 
     let mut line = String::new();
@@ -39,7 +39,7 @@ pub fn print<T>(label: &str, value: T)
 where
     T: Display,
 {
-    println!("{:30}: {}", label.green(), format!("{}", value).yellow());
+    println!("{:30}: {}", label.green(), format!("{value}").yellow());
 }
 
 pub fn print_data_dir(dir_info: &DirInfo) {

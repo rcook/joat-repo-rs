@@ -106,6 +106,7 @@ fn parse_meta_id(s: &str) -> Result<MetaId> {
     s.parse::<MetaId>().map_err(|e| anyhow!(e))
 }
 
+#[allow(clippy::unnecessary_wraps)]
 fn parse_shared_path(s: &str) -> Result<SharedPath> {
     Ok(SharedPath::new(s))
 }
