@@ -3,6 +3,7 @@
 [![CI](https://github.com/rcook/joat-repo-rs/actions/workflows/ci.yaml/badge.svg)][ci-workflow]
 [![Publish](https://github.com/rcook/joat-repo-rs/actions/workflows/publish.yaml/badge.svg)][publish-workflow]
 [![crates.io](https://img.shields.io/crates/v/joat-repo.svg)][crates-io]
+[![Docs](https://docs.rs/joat-repo/badge.svg)](https://docs.rs/joat-repo)
 
 Metadirectory repositories
 
