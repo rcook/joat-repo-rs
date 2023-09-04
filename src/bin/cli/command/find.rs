@@ -55,7 +55,10 @@ pub fn do_find(repo: &Repo, cwd: &Path) -> Result<Status> {
     };
 
     let Some(dir_info) = repo.get(link.project_dir())? else {
-        error!("Could not find metadirectory info for directory {}", link.project_dir().display());
+        error!(
+            "Could not find metadirectory info for directory {}",
+            link.project_dir().display()
+        );
         return Ok(Status::Failure);
     };
 
