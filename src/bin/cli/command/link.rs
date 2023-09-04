@@ -54,7 +54,7 @@ fn prompt_for_meta_id(repo: &Repo) -> Result<Option<MetaId>> {
     }
 
     let Ok(index) = line.parse::<usize>() else {
-        return Ok(None)
+        return Ok(None);
     };
 
     if index < 1 || index > manifest_count {
