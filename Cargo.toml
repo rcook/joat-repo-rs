@@ -9,7 +9,7 @@ license = "MIT"
 name = "joat-repo"
 readme = "README.md"
 repository = "https://github.com/rcook/joat-repo-rs.git"
-version = "0.0.10"
+version = "0.0.11"
 
 [features]
 example-bin = ["clap", "color-backtrace", "colored", "home", "log"]
